@@ -175,7 +175,6 @@
         <div class="logo"></div>
         <div>
           <h1>Heat Exchanger Design</h1>
-          <span style="font-size:0.8rem;color:#9ca3af;">Single‑shell, steady‑state duty and required area</span>
         </div>
       </div>
       <a class="nav-link" href="index.html">← Back to all tools</a>
@@ -188,46 +187,42 @@
       <!-- MAIN CALCULATOR -->
       <div class="app">
         <h2>1. Stream data and heat balance</h2>
-        <p>
-          Each value has its own unit selector. Internally the calculator converts
-          to °C, kg/s, J/kg·K, W, W/m²·K and m²·K/W using the shared unit database.
-        </p>
 
         <div class="scroll-x">
           <table>
             <tr>
               <th>Item</th>
-              <th class="center">Cold stream</th>
-              <th class="center">Hot stream</th>
+              <th class="center">Stream 1</th>
+              <th class="center">Stream 2</th>
             </tr>
 
             <tr>
-              <td>Input temperature, t(in)</td>
+              <td>Input temperature, T(in)</td>
               <td>
                 <div class="cell-flex">
-                  <input type="number" id="tColdIn" step="any" value="34">
+                  <input type="number" id="tColdIn" step="any">
                   <select id="u_tColdIn"></select>
                 </div>
               </td>
               <td>
                 <div class="cell-flex">
-                  <input type="number" id="tHotIn" step="any" value="72">
+                  <input type="number" id="tHotIn" step="any">
                   <select id="u_tHotIn"></select>
                 </div>
               </td>
             </tr>
 
             <tr>
-              <td>Output temperature, t(out)</td>
+              <td>Output temperature, T(out)</td>
               <td>
                 <div class="cell-flex">
-                  <input type="number" id="tColdOut" step="any" value="44">
+                  <input type="number" id="tColdOut" step="any">
                   <select id="u_tColdOut"></select>
                 </div>
               </td>
               <td>
                 <div class="cell-flex">
-                  <input type="number" id="tHotOut" step="any" value="60">
+                  <input type="number" id="tHotOut" step="any">
                   <select id="u_tHotOut"></select>
                 </div>
               </td>
@@ -237,23 +232,23 @@
               <td>Specific heat capacity, Cp</td>
               <td>
                 <div class="cell-flex">
-                  <input type="number" id="cpCold" step="any" value="2100">
+                  <input type="number" id="cpCold" step="any">
                   <select id="u_cpCold"></select>
                 </div>
               </td>
               <td>
                 <div class="cell-flex">
-                  <input type="number" id="cpHot" step="any" value="2600">
+                  <input type="number" id="cpHot" step="any">
                   <select id="u_cpHot"></select>
                 </div>
               </td>
             </tr>
 
             <tr>
-              <td>Mass flow rate, M (cold input / hot result)</td>
+              <td>Mass flow rate, m (Note 1)</td>
               <td>
                 <div class="cell-flex">
-                  <input type="number" id="mCold" step="any" value="140000">
+                  <input type="number" id="mCold" step="any">
                   <select id="u_mCold"></select>
                 </div>
               </td>
@@ -289,7 +284,7 @@
           <table>
             <tr>
               <th>Flow regime</th>
-              <th>LMTD</th>
+              <th>LMTD (Note 2)</th>
             </tr>
             <tr>
               <td>
@@ -313,28 +308,28 @@
               <th>Value</th>
             </tr>
             <tr>
-              <td>Overall heat transfer coeff. – clean, U</td>
+              <td>Overall heat transfer coeff. – clean, U (Note 3)</td>
               <td>
                 <div class="cell-flex">
-                  <input type="number" id="uClean" step="any" value="800">
+                  <input type="number" id="uClean" step="any">
                   <select id="u_uClean"></select>
                 </div>
               </td>
             </tr>
             <tr>
-              <td>Fouling coefficient, cold side, Rd1</td>
+              <td>Fouling coefficient, Stream 1-side, Rd1 (Note 4)</td>
               <td>
                 <div class="cell-flex">
-                  <input type="number" id="rd1" step="any" value="0.0002">
+                  <input type="number" id="rd1" step="any">
                   <select id="u_rd1"></select>
                 </div>
               </td>
             </tr>
             <tr>
-              <td>Fouling coefficient, hot side, Rd2</td>
+              <td>Fouling coefficient, Stream 2-side, Rd2 (Note 4)</td>
               <td>
                 <div class="cell-flex">
-                  <input type="number" id="rd2" step="any" value="0.0004">
+                  <input type="number" id="rd2" step="any">
                   <select id="u_rd2"></select>
                 </div>
               </td>
@@ -361,7 +356,7 @@
               <td>Design margin on surface</td>
               <td>
                 <div class="cell-flex">
-                  <input type="number" id="margin" step="any" value="20">
+                  <input type="number" id="margin" step="any">
                   <span style="font-size:0.8rem;">%</span>
                 </div>
               </td>
