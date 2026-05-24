@@ -86,8 +86,8 @@
       padding: 0.5rem 0.6rem;
       border-radius: 0.5rem;
       border: 1px solid #1f2937;
-      background: #020617;
-      color: #e5e7eb;
+      background: #ffffff;
+      color: #111827;
       margin-bottom: 0.75rem;
       font-size: 0.95rem;
     }
@@ -151,11 +151,6 @@
   <main>
     <div class="container">
       <div class="app">
-        <p>
-          Convert between SI and English units across multiple categories.
-          Pressure units are tagged as absolute (A) or gauge (G); gauge is
-          always absolute minus 101.325&nbsp;kPa.
-        </p>
 
         <label for="category">Category</label>
         <select id="category"></select>
@@ -184,7 +179,7 @@
 
         <button id="convertBtn">Convert</button>
 
-        <div id="result" class="result">Result will appear here.</div>
+        <div id="result" class="result"></div>
         <div id="error" class="error"></div>
         <div class="muted">
           All calculators on this site share the same unit database. Edit
