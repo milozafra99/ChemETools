@@ -1,0 +1,567 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Unit Converter</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #0b1120;
+      color: #e5e7eb;
+      margin: 0;
+      padding: 1.5rem;
+      display: flex;
+      justify-content: center;
+    }
+    .app {
+      width: 100%;
+      max-width: 720px;
+      background: #020617;
+      border-radius: 12px;
+      padding: 1.5rem 1.8rem 2rem;
+      box-shadow: 0 18px 40px rgba(0,0,0,0.6);
+    }
+    h1 {
+      font-size: 1.4rem;
+      margin-top: 0;
+      margin-bottom: 0.75rem;
+    }
+    p {
+      margin-top: 0;
+      margin-bottom: 0.75rem;
+      font-size: 0.9rem;
+      color: #9ca3af;
+    }
+    label {
+      font-size: 0.9rem;
+      font-weight: 600;
+      display: block;
+      margin-bottom: 0.25rem;
+      color: #e5e7eb;
+    }
+    select, input {
+      width: 100%;
+      padding: 0.5rem 0.6rem;
+      border-radius: 0.5rem;
+      border: 1px solid #1f2937;
+      background: #020617;
+      color: #e5e7eb;
+      margin-bottom: 0.75rem;
+      font-size: 0.95rem;
+    }
+    select:focus, input:focus {
+      outline: 2px solid #2563eb;
+      outline-offset: 1px;
+      border-color: transparent;
+    }
+    .row {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1rem;
+    }
+    button {
+      margin-top: 0.5rem;
+      width: 100%;
+      padding: 0.65rem 1rem;
+      border-radius: 999px;
+      border: none;
+      background: #2563eb;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 0.95rem;
+    }
+    button:hover {
+      background: #1d4ed8;
+    }
+    .result {
+      margin-top: 1rem;
+      padding: 0.75rem 1rem;
+      border-radius: 0.75rem;
+      background: #020617;
+      border: 1px solid #1f2937;
+      font-size: 1rem;
+    }
+    .error {
+      color: #fca5a5;
+      margin-top: 0.5rem;
+      font-size: 0.9rem;
+    }
+    .muted {
+      font-size: 0.8rem;
+      color: #6b7280;
+      margin-top: 0.4rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <h1>Engineering Unit Converter</h1>
+    <p>
+      Choose a <strong>category</strong>, enter a value, and select the starting
+      and desired units. The list of categories matches the image you provided.
+    </p>
+
+    <label for="category">Category</label>
+    <select id="category"></select>
+
+    <div class="row">
+      <div>
+        <label for="fromUnit">From unit</label>
+        <select id="fromUnit"></select>
+      </div>
+      <div>
+        <label for="toUnit">To unit</label>
+        <select id="toUnit"></select>
+      </div>
+    </div>
+
+    <div class="row">
+      <div>
+        <label for="value">Value</label>
+        <input id="value" type="number" step="any" placeholder="Enter value" />
+      </div>
+      <div>
+        <label>&nbsp;</label>
+        <button id="convertBtn">Convert</button>
+      </div>
+    </div>
+
+    <div id="result" class="result">Result will appear here.</div>
+    <div id="error" class="error"></div>
+    <div class="muted">
+      Note: Temperature uses proper °C / °F / K formulas. Other units are
+      simple linear conversions via an internal base unit.
+    </div>
+  </div>
+
+  <script>
+    // Conversion data:
+    // For each category:
+    // - base: name of the base unit
+    // - units: { key: { label, factor } } where value_in_base = value * factor
+    // For temperature we handle separately with formulas because of offsets.
+
+    const data = {
+      "Length": {
+        base: "meter",
+        units: {
+          m:   { label: "meter (m)",           factor: 1 },
+          cm:  { label: "centimeter (cm)",     factor: 0.01 },
+          mm:  { label: "millimeter (mm)",     factor: 0.001 },
+          km:  { label: "kilometer (km)",      factor: 1000 },
+          in:  { label: "inch (in)",           factor: 0.0254 },
+          ft:  { label: "foot (ft)",           factor: 0.3048 }
+        }
+      },
+
+      "Mass": {
+        base: "kilogram",
+        units: {
+          kg: { label: "kilogram (kg)", factor: 1 },
+          g:  { label: "gram (g)",      factor: 0.001 },
+          lb: { label: "pound (lb)",    factor: 0.45359237 },
+          ton:{ label: "metric ton (t)",factor: 1000 }
+        }
+      },
+
+      "Volume": {
+        base: "cubic meter",
+        units: {
+          "m3":   { label: "cubic meter (m³)",         factor: 1 },
+          "L":    { label: "liter (L)",                factor: 0.001 },
+          "mL":   { label: "milliliter (mL)",          factor: 0.000001 },
+          "ft3":  { label: "cubic foot (ft³)",         factor: 0.0283168466 },
+          "gal":  { label: "US gallon (gal)",          factor: 0.00378541178 }
+        }
+      },
+
+      "Time": {
+        base: "second",
+        units: {
+          s:  { label: "second (s)",   factor: 1 },
+          min:{ label: "minute (min)", factor: 60 },
+          h:  { label: "hour (h)",     factor: 3600 },
+          day:{ label: "day",          factor: 86400 }
+        }
+      },
+
+      "Velocity, Speed": {
+        base: "meter per second",
+        units: {
+          "m/s":  { label: "meter per second (m/s)", factor: 1 },
+          "km/h": { label: "kilometer per hour (km/h)", factor: 0.277777778 },
+          "ft/s": { label: "foot per second (ft/s)", factor: 0.3048 },
+          "mph":  { label: "mile per hour (mph)",    factor: 0.44704 }
+        }
+      },
+
+      "Acceleration": {
+        base: "meter per second squared",
+        units: {
+          "m/s2": { label: "meter per second² (m/s²)", factor: 1 },
+          "ft/s2":{ label: "foot per second² (ft/s²)", factor: 0.3048 },
+          "g":    { label: "standard gravity (g)",     factor: 9.80665 }
+        }
+      },
+
+      "Area": {
+        base: "square meter",
+        units: {
+          "m2":  { label: "square meter (m²)",   factor: 1 },
+          "cm2": { label: "square centimeter (cm²)", factor: 0.0001 },
+          "mm2": { label: "square millimeter (mm²)", factor: 0.000001 },
+          "ft2": { label: "square foot (ft²)",   factor: 0.09290304 },
+          "ha":  { label: "hectare (ha)",        factor: 10000 }
+        }
+      },
+
+      "Density": {
+        base: "kilogram per cubic meter",
+        units: {
+          "kg/m3": { label: "kg/m³", factor: 1 },
+          "g/cm3": { label: "g/cm³", factor: 1000 },
+          "lb/ft3":{ label: "lb/ft³",factor: 16.0184634 }
+        }
+      },
+
+      "Energy, Work": {
+        base: "joule",
+        units: {
+          J:   { label: "joule (J)",        factor: 1 },
+          kJ:  { label: "kilojoule (kJ)",   factor: 1000 },
+          Wh:  { label: "watt-hour (Wh)",   factor: 3600 },
+          kWh: { label: "kilowatt-hour (kWh)", factor: 3_600_000 },
+          cal: { label: "calorie (cal)",    factor: 4.184 }
+        }
+      },
+
+      "Force": {
+        base: "newton",
+        units: {
+          N:  { label: "newton (N)",        factor: 1 },
+          kN: { label: "kilonewton (kN)",   factor: 1000 },
+          lbf:{ label: "pound-force (lbf)", factor: 4.44822162 }
+        }
+      },
+
+      "Mass Flow": {
+        base: "kilogram per second",
+        units: {
+          "kg/s": { label: "kg/s", factor: 1 },
+          "kg/h": { label: "kg/h", factor: 1/3600 },
+          "lb/s": { label: "lb/s", factor: 0.45359237 },
+          "lb/h": { label: "lb/h", factor: 0.45359237/3600 }
+        }
+      },
+
+      "Volume Flow": {
+        base: "cubic meter per second",
+        units: {
+          "m3/s":  { label: "m³/s", factor: 1 },
+          "m3/h":  { label: "m³/h", factor: 1/3600 },
+          "L/s":   { label: "L/s",  factor: 0.001 },
+          "L/min": { label: "L/min",factor: 0.001/60 },
+          "gpm":   { label: "US gallon per minute (gpm)", factor: 0.00378541178/60 }
+        }
+      },
+
+      "Power, Heat Flow, Duty": {
+        base: "watt",
+        units: {
+          W:   { label: "watt (W)",      factor: 1 },
+          kW:  { label: "kilowatt (kW)", factor: 1000 },
+          MW:  { label: "megawatt (MW)", factor: 1_000_000 },
+          hp:  { label: "horsepower (hp)", factor: 745.699872 }
+        }
+      },
+
+      "Pressure": {
+        base: "pascal",
+        units: {
+          Pa:   { label: "pascal (Pa)",       factor: 1 },
+          kPa:  { label: "kilopascal (kPa)",  factor: 1000 },
+          bar:  { label: "bar",               factor: 100000 },
+          atm:  { label: "standard atmosphere (atm)", factor: 101325 },
+          psi:  { label: "pound per square inch (psi)", factor: 6894.75729 }
+        }
+      },
+
+      "Temperature Difference": {
+        base: "kelvin difference",
+        units: {
+          K:  { label: "kelvin (K)",  factor: 1 },
+          C:  { label: "degree Celsius (°C)", factor: 1 },
+          F:  { label: "degree Fahrenheit (°F)", factor: 5/9 } // ΔF = 9/5 ΔC
+        }
+      },
+
+      "Surface Density": {
+        base: "kilogram per square meter",
+        units: {
+          "kg/m2": { label: "kg/m²", factor: 1 },
+          "g/cm2": { label: "g/cm²", factor: 10 },
+          "lb/ft2":{ label: "lb/ft²",factor: 4.88242764 }
+        }
+      },
+
+      "Surface Tension": {
+        base: "newton per meter",
+        units: {
+          "N/m":  { label: "N/m",  factor: 1 },
+          "mN/m": { label: "mN/m", factor: 0.001 },
+          "dyne/cm": { label: "dyne/cm", factor: 0.001 } // 1 dyne/cm = 0.001 N/m
+        }
+      },
+
+      "Viscosity (Dynamic)": {
+        base: "pascal second",
+        units: {
+          "Pa·s": { label: "Pa·s", factor: 1 },
+          "mPa·s":{ label: "mPa·s", factor: 0.001 },
+          "cP":   { label: "centipoise (cP)", factor: 0.001 }
+        }
+      },
+
+      "Viscosity (Kinematic)": {
+        base: "square meter per second",
+        units: {
+          "m2/s": { label: "m²/s", factor: 1 },
+          "cSt":  { label: "centistokes (cSt)", factor: 1e-6 }
+        }
+      },
+
+      "Heat Capacity, Entropy": {
+        base: "joule per kilogram kelvin",
+        units: {
+          "J/(kg·K)":  { label: "J/(kg·K)", factor: 1 },
+          "kJ/(kg·K)": { label: "kJ/(kg·K)", factor: 1000 },
+          "Btu/(lb·°F)": { label: "Btu/(lb·°F)", factor: 4186.8/0.45359237/1.8 } // approx
+        }
+      },
+
+      "Heat Conductivity": {
+        base: "watt per meter kelvin",
+        units: {
+          "W/(m·K)":  { label: "W/(m·K)", factor: 1 },
+          "kW/(m·K)": { label: "kW/(m·K)", factor: 1000 },
+          "Btu/(h·ft·°F)": { label: "Btu/(h·ft·°F)", factor: 1.730735e0 } // approx
+        }
+      },
+
+      "Heat Exchanged, Enthalpy": {
+        base: "joule",
+        units: {
+          J:   { label: "joule (J)",      factor: 1 },
+          kJ:  { label: "kilojoule (kJ)", factor: 1000 },
+          Btu: { label: "Btu",            factor: 1055.06 }
+        }
+      },
+
+      "Heat Transfer, Radiation": {
+        base: "watt",
+        units: {
+          W:  { label: "watt (W)",      factor: 1 },
+          kW: { label: "kilowatt (kW)", factor: 1000 },
+          "Btu/h": { label: "Btu per hour (Btu/h)", factor: 0.29307107 }
+        }
+      },
+
+      "Heat Resistance, Fouling": {
+        base: "square meter kelvin per watt",
+        units: {
+          "m2·K/W":   { label: "m²·K/W", factor: 1 },
+          "ft2·°F·h/Btu": { label: "ft²·°F·h/Btu", factor: 0.1761 } // approx
+        }
+      },
+
+      "Pressure Drop / Length": {
+        base: "pascal per meter",
+        units: {
+          "Pa/m": { label: "Pa/m", factor: 1 },
+          "kPa/m":{ label: "kPa/m",factor: 1000 },
+          "psi/ft":{ label: "psi/ft", factor: 6894.75729/0.3048 }
+        }
+      },
+
+      "Light": {
+        base: "lux",
+        units: {
+          lx: { label: "lux (lx)", factor: 1 },
+          "lm/m2": { label: "lumen per m² (lm/m²)", factor: 1 },
+          fc: { label: "foot-candle (fc)", factor: 10.7639104 }
+        }
+      },
+
+      "Angle": {
+        base: "radian",
+        units: {
+          rad: { label: "radian (rad)", factor: 1 },
+          deg: { label: "degree (°)",  factor: Math.PI / 180 },
+          grad:{ label: "gradian (gon)", factor: Math.PI / 200 }
+        }
+      }
+    };
+
+    // Temperature (absolute) is handled specially.
+    const temperatureUnits = ["°C", "°F", "K"];
+    function convertTemperature(value, from, to) {
+      let kelvin;
+      if (from === "°C") kelvin = value + 273.15;
+      else if (from === "°F") kelvin = (value - 32) * 5/9 + 273.15;
+      else if (from === "K") kelvin = value;
+      else throw new Error("Unknown temperature unit");
+
+      if (to === "°C") return kelvin - 273.15;
+      if (to === "°F") return (kelvin - 273.15) * 9/5 + 32;
+      if (to === "K")  return kelvin;
+      throw new Error("Unknown temperature unit");
+    }
+
+    const categorySelect = document.getElementById("category");
+    const fromSelect = document.getElementById("fromUnit");
+    const toSelect = document.getElementById("toUnit");
+    const valueInput = document.getElementById("value");
+    const resultDiv = document.getElementById("result");
+    const errorDiv = document.getElementById("error");
+    const convertBtn = document.getElementById("convertBtn");
+
+    const allCategories = [
+      "Acceleration",
+      "Amount of Substance",     // placeholder (no units yet)
+      "Angle",
+      "Area",
+      "Density",
+      "Energy, Work",
+      "Force",
+      "Heat Capacity, Entropy",
+      "Heat Conductivity",
+      "Heat Exchanged, Enthalpy",
+      "Heat Transfer, Radiation",
+      "Heat Resistance, Fouling",
+      "Heat Transfer",
+      "Length",
+      "Light",
+      "Mass",
+      "Mass Flow",
+      "Power, Heat Flow, Duty",
+      "Pressure",
+      "Pressure Drop / Length",
+      "Surface Density",
+      "Surface Tension",
+      "Temperature",
+      "Temperature Difference",
+      "Time",
+      "Velocity, Speed",
+      "Viscosity (Dynamic)",
+      "Viscosity (Kinematic)",
+      "Volume",
+      "Volume Flow"
+    ];
+
+    // Populate category dropdown
+    for (const cat of allCategories) {
+      const opt = document.createElement("option");
+      opt.value = cat;
+      opt.textContent = cat;
+      categorySelect.appendChild(opt);
+    }
+
+    function populateUnits() {
+      const category = categorySelect.value;
+      fromSelect.innerHTML = "";
+      toSelect.innerHTML = "";
+      errorDiv.textContent = "";
+
+      let unitsObj;
+
+      if (category === "Temperature") {
+        unitsObj = {};
+        for (const u of temperatureUnits) {
+          unitsObj[u] = { label: u, factor: 1 };
+        }
+      } else if (data[category]) {
+        unitsObj = data[category].units;
+      } else {
+        // For categories we haven't filled: show simple "N/A"
+        unitsObj = { placeholder: { label: "No units defined (demo only)", factor: 1 } };
+      }
+
+      for (const key in unitsObj) {
+        const { label } = unitsObj[key];
+        const opt1 = document.createElement("option");
+        const opt2 = document.createElement("option");
+        opt1.value = key;
+        opt2.value = key;
+        opt1.textContent = label;
+        opt2.textContent = label;
+        fromSelect.appendChild(opt1);
+        toSelect.appendChild(opt2);
+      }
+
+      // default: different from/to unit if possible
+      if (toSelect.options.length > 1) {
+        toSelect.selectedIndex = 1;
+      }
+    }
+
+    categorySelect.addEventListener("change", populateUnits);
+
+    function convert() {
+      const category = categorySelect.value;
+      const from = fromSelect.value;
+      const to = toSelect.value;
+      const rawValue = valueInput.value;
+
+      errorDiv.textContent = "";
+
+      if (!rawValue) {
+        errorDiv.textContent = "Please enter a value.";
+        return;
+      }
+
+      const value = Number(rawValue);
+      if (!Number.isFinite(value)) {
+        errorDiv.textContent = "Invalid numeric value.";
+        return;
+      }
+
+      let result;
+
+      try {
+        if (category === "Temperature") {
+          result = convertTemperature(value, from, to);
+        } else {
+          const catData = data[category];
+          if (!catData || !catData.units[from] || !catData.units[to]) {
+            errorDiv.textContent = "No conversion defined for this category yet.";
+            return;
+          }
+          const fromFactor = catData.units[from].factor;
+          const toFactor = catData.units[to].factor;
+
+          const valueInBase = value * fromFactor;
+          result = valueInBase / toFactor;
+        }
+      } catch (e) {
+        console.error(e);
+        errorDiv.textContent = "Conversion error: " + e.message;
+        return;
+      }
+
+      resultDiv.textContent = `${value} ${from} = ${result.toPrecision(8)} ${to}`;
+    }
+
+    convertBtn.addEventListener("click", convert);
+    valueInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") convert();
+    });
+
+    // Initialize UI
+    categorySelect.value = "Length";
+    populateUnits();
+  </script>
+</body>
+</html>
