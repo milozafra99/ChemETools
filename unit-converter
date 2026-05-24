@@ -4,7 +4,6 @@
   <meta charset="utf-8" />
   <title>ChemEng Tools – Unit Converter</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <!-- reuse the same styles as before; shortened here to main layout + app box -->
   <style>
     * { box-sizing: border-box; }
     body {
@@ -54,7 +53,11 @@
     }
     a.nav-link:hover { color: #bfdbfe; }
 
-    /* app box & controls – same style you already used */
+    main .container {
+      display: flex;
+      justify-content: center;
+    }
+
     .app {
       width: 100%;
       max-width: 780px;
@@ -64,10 +67,7 @@
       box-shadow: 0 18px 40px rgba(0,0,0,0.6);
       border: 1px solid #111827;
     }
-    main .container {
-      display: flex;
-      justify-content: center;
-    }
+
     p {
       margin-top: 0;
       margin-bottom: 0.75rem;
@@ -151,22 +151,512 @@
   <main>
     <div class="container">
       <div class="app">
-        <!-- keep your existing converter UI + script; shortened here -->
         <p>
-          Convert between SI and English units. For Pressure, you can also switch
-          between absolute and gauge (P<sub>atm</sub> = 101.325 kPa).
+          Convert between SI and English units across multiple categories. For
+          <strong>Pressure</strong>, you can also convert between absolute and
+          gauge pressure using a fixed atmospheric pressure of 101.325 kPa.
         </p>
 
-        <!-- your existing form: category, units, value, decimal places, etc. -->
-        <!-- ... paste the full converter markup and <script> from the last version ... -->
+        <label for="category">Category</label>
+        <select id="category"></select>
 
+        <div class="row">
+          <div>
+            <label for="fromUnit">From unit</label>
+            <select id="fromUnit"></select>
+          </div>
+          <div>
+            <label for="toUnit">To unit</label>
+            <select id="toUnit"></select>
+          </div>
+        </div>
+
+        <div class="row">
+          <div>
+            <label for="value">Value</label>
+            <input id="value" type="number" step="any" placeholder="Enter value" />
+          </div>
+          <div>
+            <label for="decimals">Decimal places</label>
+            <input id="decimals" type="number" min="0" max="10" value="4" />
+          </div>
+        </div>
+
+        <label for="pressureMode">Pressure type adjustment (Pressure only)</label>
+        <select id="pressureMode">
+          <option value="none">None (same type, just change units)</option>
+          <option value="abs-to-gage">Absolute → Gauge</option>
+          <option value="gage-to-abs">Gauge → Absolute</option>
+        </select>
+
+        <button id="convertBtn">Convert</button>
+
+        <div id="result" class="result">Result will appear here.</div>
+        <div id="error" class="error"></div>
+        <div class="muted">
+          Absolute temperature (°C / °F / K) uses formulas with offsets. Other
+          categories use linear conversions via an internal base unit.
+        </div>
       </div>
     </div>
   </main>
 
-  <!-- your existing <script> block goes here -->
   <script>
-    // paste the JS from your working converter here (unchanged)
+    // ---------------- Conversion data ----------------
+
+    const data = {
+      // MECHANICAL / BASIC
+      "Length": {
+        base: "meter",
+        units: {
+          m:   { label: "meter (m)",           factor: 1 },
+          cm:  { label: "centimeter (cm)",     factor: 0.01 },
+          mm:  { label: "millimeter (mm)",     factor: 0.001 },
+          km:  { label: "kilometer (km)",      factor: 1000 },
+          in:  { label: "inch (in)",           factor: 0.0254 },
+          ft:  { label: "foot (ft)",           factor: 0.3048 },
+          yd:  { label: "yard (yd)",           factor: 0.9144 },
+          mi:  { label: "mile (mi)",           factor: 1609.344 }
+        }
+      },
+
+      "Mass": {
+        base: "kilogram",
+        units: {
+          kg: { label: "kilogram (kg)", factor: 1 },
+          g:  { label: "gram (g)",      factor: 0.001 },
+          mg: { label: "milligram (mg)",factor: 0.000001 },
+          lb: { label: "pound (lb)",    factor: 0.45359237 },
+          oz: { label: "ounce (oz)",    factor: 0.028349523125 },
+          ton:{ label: "metric ton (t)",factor: 1000 }
+        }
+      },
+
+      "Volume": {
+        base: "cubic meter",
+        units: {
+          "m3":   { label: "cubic meter (m³)",   factor: 1 },
+          "L":    { label: "liter (L)",          factor: 0.001 },
+          "mL":   { label: "milliliter (mL)",    factor: 0.000001 },
+          "ft3":  { label: "cubic foot (ft³)",   factor: 0.028316846592 },
+          "in3":  { label: "cubic inch (in³)",   factor: 0.000016387064 },
+          "gal":  { label: "US gallon (gal)",    factor: 0.003785411784 },
+          "qt":   { label: "US quart (qt)",      factor: 0.000946352946 }
+        }
+      },
+
+      "Area": {
+        base: "square meter",
+        units: {
+          "m2":  { label: "square meter (m²)",   factor: 1 },
+          "cm2": { label: "square centimeter (cm²)", factor: 0.0001 },
+          "mm2": { label: "square millimeter (mm²)", factor: 0.000001 },
+          "ft2": { label: "square foot (ft²)",   factor: 0.09290304 },
+          "in2": { label: "square inch (in²)",   factor: 0.00064516 },
+          "ha":  { label: "hectare (ha)",        factor: 10000 }
+        }
+      },
+
+      "Time": {
+        base: "second",
+        units: {
+          s:   { label: "second (s)",   factor: 1 },
+          min: { label: "minute (min)", factor: 60 },
+          h:   { label: "hour (h)",     factor: 3600 },
+          day: { label: "day",          factor: 86400 }
+        }
+      },
+
+      "Velocity, Speed": {
+        base: "meter per second",
+        units: {
+          "m/s":  { label: "meter per second (m/s)", factor: 1 },
+          "km/h": { label: "kilometer per hour (km/h)", factor: 1000/3600 },
+          "ft/s": { label: "foot per second (ft/s)", factor: 0.3048 },
+          "mph":  { label: "mile per hour (mph)",    factor: 1609.344/3600 }
+        }
+      },
+
+      "Acceleration": {
+        base: "meter per second squared",
+        units: {
+          "m/s2": { label: "meter per second² (m/s²)", factor: 1 },
+          "ft/s2":{ label: "foot per second² (ft/s²)", factor: 0.3048 },
+          "g":    { label: "standard gravity (g)",     factor: 9.80665 }
+        }
+      },
+
+      // THERMO / HEAT
+      "Energy, Work": {
+        base: "joule",
+        units: {
+          J:   { label: "joule (J)",        factor: 1 },
+          kJ:  { label: "kilojoule (kJ)",   factor: 1000 },
+          Wh:  { label: "watt-hour (Wh)",   factor: 3600 },
+          kWh: { label: "kilowatt-hour (kWh)", factor: 3_600_000 },
+          cal: { label: "calorie (cal)",    factor: 4.184 },
+          kcal:{ label: "kilocalorie (kcal)", factor: 4184 },
+          Btu: { label: "Btu (IT)",         factor: 1055.05585262 }
+        }
+      },
+
+      "Heat Capacity, Entropy": {
+        base: "joule per kilogram kelvin",
+        units: {
+          "J/(kg·K)":  { label: "J/(kg·K)", factor: 1 },
+          "kJ/(kg·K)": { label: "kJ/(kg·K)", factor: 1000 },
+          "Btu/(lb·°F)": {
+            label: "Btu/(lb·°F)",
+            factor: 4186.8
+          }
+        }
+      },
+
+      "Heat Conductivity": {
+        base: "watt per meter kelvin",
+        units: {
+          "W/(m·K)":   { label: "W/(m·K)", factor: 1 },
+          "kW/(m·K)":  { label: "kW/(m·K)", factor: 1000 },
+          "Btu/(h·ft·°F)": {
+            label: "Btu/(h·ft·°F)",
+            factor: 1.730735
+          }
+        }
+      },
+
+      "Heat Resistance, Fouling": {
+        base: "square meter kelvin per watt",
+        units: {
+          "m2·K/W": { label: "m²·K/W", factor: 1 },
+          "ft2·h·°F/Btu": {
+            label: "ft²·h·°F/Btu",
+            factor: 0.1761101838
+          }
+        }
+      },
+
+      "Heat Exchanged, Enthalpy": {
+        base: "joule per kilogram",
+        units: {
+          "J/kg":   { label: "J/kg", factor: 1 },
+          "kJ/kg":  { label: "kJ/kg", factor: 1000 },
+          "Btu/lb": {
+            label: "Btu/lb",
+            factor: 1055.05585262 / 0.45359237
+          }
+        }
+      },
+
+      // FLUID / TRANSPORT
+      "Density": {
+        base: "kilogram per cubic meter",
+        units: {
+          "kg/m3": { label: "kg/m³", factor: 1 },
+          "g/cm3": { label: "g/cm³", factor: 1000 },
+          "lb/ft3":{ label: "lb/ft³",factor: 16.01846337396 }
+        }
+      },
+
+      "Surface Density": {
+        base: "kilogram per square meter",
+        units: {
+          "kg/m2": { label: "kg/m²", factor: 1 },
+          "g/cm2": { label: "g/cm²", factor: 10 },
+          "lb/ft2":{ label: "lb/ft²",factor: 4.88242763638 }
+        }
+      },
+
+      "Surface Tension": {
+        base: "newton per meter",
+        units: {
+          "N/m":  { label: "N/m",  factor: 1 },
+          "mN/m": { label: "mN/m", factor: 0.001 },
+          "dyne/cm": { label: "dyne/cm", factor: 0.001 }
+        }
+      },
+
+      "Viscosity (Dynamic)": {
+        base: "pascal second",
+        units: {
+          "Pa·s": { label: "Pa·s", factor: 1 },
+          "mPa·s":{ label: "mPa·s", factor: 0.001 },
+          "cP":   { label: "centipoise (cP)", factor: 0.001 }
+        }
+      },
+
+      "Viscosity (Kinematic)": {
+        base: "square meter per second",
+        units: {
+          "m2/s": { label: "m²/s", factor: 1 },
+          "cSt":  { label: "centistokes (cSt)", factor: 1e-6 }
+        }
+      },
+
+      "Mass Flow": {
+        base: "kilogram per second",
+        units: {
+          "kg/s": { label: "kg/s", factor: 1 },
+          "kg/h": { label: "kg/h", factor: 1/3600 },
+          "lb/s": { label: "lb/s", factor: 0.45359237 },
+          "lb/h": { label: "lb/h", factor: 0.45359237/3600 }
+        }
+      },
+
+      "Volume Flow": {
+        base: "cubic meter per second",
+        units: {
+          "m3/s":  { label: "m³/s", factor: 1 },
+          "m3/h":  { label: "m³/h", factor: 1/3600 },
+          "L/s":   { label: "L/s",  factor: 0.001 },
+          "L/min": { label: "L/min",factor: 0.001/60 },
+          "gpm":   { label: "US gallon per minute (gpm)", factor: 0.003785411784/60 }
+        }
+      },
+
+      "Force": {
+        base: "newton",
+        units: {
+          N:  { label: "newton (N)",        factor: 1 },
+          kN: { label: "kilonewton (kN)",   factor: 1000 },
+          lbf:{ label: "pound‑force (lbf)", factor: 4.4482216152605 }
+        }
+      },
+
+      "Pressure": {
+        base: "pascal",
+        units: {
+          Pa:   { label: "pascal (Pa)",       factor: 1 },
+          kPa:  { label: "kilopascal (kPa)",  factor: 1000 },
+          MPa:  { label: "megapascal (MPa)",  factor: 1_000_000 },
+          bar:  { label: "bar",               factor: 100000 },
+          atm:  { label: "standard atmosphere (atm)", factor: 101325 },
+          psi:  { label: "pound per square inch (psi)", factor: 6894.757293168 }
+        }
+      },
+
+      "Light": {
+        base: "lux",
+        units: {
+          lx: { label: "lux (lx)", factor: 1 },
+          "lm/m2": { label: "lumen per m² (lm/m²)", factor: 1 },
+          fc: { label: "foot-candle (fc)", factor: 10.76391041671 }
+        }
+      },
+
+      "Angle": {
+        base: "radian",
+        units: {
+          rad: { label: "radian (rad)", factor: 1 },
+          deg: { label: "degree (°)",  factor: Math.PI / 180 },
+          grad:{ label: "gradian (gon)", factor: Math.PI / 200 }
+        }
+      },
+
+      "Temperature Difference": {
+        base: "kelvin difference",
+        units: {
+          K:  { label: "kelvin (K)",  factor: 1 },
+          C:  { label: "degree Celsius (°C)", factor: 1 },
+          F:  { label: "degree Fahrenheit (°F)", factor: 5/9 }
+        }
+      }
+    };
+
+    // --------------- Temperature (absolute) ---------------
+
+    const temperatureUnits = ["°C", "°F", "K"];
+
+    function convertTemperature(value, from, to) {
+      let kelvin;
+      if (from === "°C") kelvin = value + 273.15;
+      else if (from === "°F") kelvin = (value - 32) * 5/9 + 273.15;
+      else if (from === "K") kelvin = value;
+      else throw new Error("Unknown temperature unit");
+
+      if (to === "°C") return kelvin - 273.15;
+      if (to === "°F") return (kelvin - 273.15) * 9/5 + 32;
+      if (to === "K")  return kelvin;
+      throw new Error("Unknown temperature unit");
+    }
+
+    // --------------- DOM references -----------------------
+
+    const categorySelect = document.getElementById("category");
+    const fromSelect = document.getElementById("fromUnit");
+    const toSelect = document.getElementById("toUnit");
+    const valueInput = document.getElementById("value");
+    const decimalsInput = document.getElementById("decimals");
+    const pressureModeSelect = document.getElementById("pressureMode");
+    const resultDiv = document.getElementById("result");
+    const errorDiv = document.getElementById("error");
+    const convertBtn = document.getElementById("convertBtn");
+
+    const allCategories = [
+      "Acceleration",
+      "Amount of Substance",   // placeholder – no units yet
+      "Angle",
+      "Area",
+      "Density",
+      "Energy, Work",
+      "Force",
+      "Heat Capacity, Entropy",
+      "Heat Conductivity",
+      "Heat Exchanged, Enthalpy",
+      "Heat Transfer, Radiation", // placeholder
+      "Heat Resistance, Fouling",
+      "Heat Transfer",            // placeholder
+      "Length",
+      "Light",
+      "Mass",
+      "Mass Flow",
+      "Power, Heat Flow, Duty",   // placeholder
+      "Pressure",
+      "Pressure Drop / Length",   // placeholder
+      "Surface Density",
+      "Surface Tension",
+      "Temperature",
+      "Temperature Difference",
+      "Time",
+      "Velocity, Speed",
+      "Viscosity (Dynamic)",
+      "Viscosity (Kinematic)",
+      "Volume",
+      "Volume Flow"
+    ];
+
+    // Populate category dropdown
+    for (const cat of allCategories) {
+      const opt = document.createElement("option");
+      opt.value = cat;
+      opt.textContent = cat;
+      categorySelect.appendChild(opt);
+    }
+
+    function populateUnits() {
+      const category = categorySelect.value;
+      fromSelect.innerHTML = "";
+      toSelect.innerHTML = "";
+      errorDiv.textContent = "";
+
+      let unitsObj;
+
+      if (category === "Temperature") {
+        unitsObj = {};
+        for (const u of temperatureUnits) {
+          unitsObj[u] = { label: u, factor: 1 };
+        }
+      } else if (data[category]) {
+        unitsObj = data[category].units;
+      } else {
+        unitsObj = { placeholder: { label: "No units defined (demo only)", factor: 1 } };
+      }
+
+      for (const key in unitsObj) {
+        const { label } = unitsObj[key];
+        const opt1 = document.createElement("option");
+        const opt2 = document.createElement("option");
+        opt1.value = key;
+        opt2.value = key;
+        opt1.textContent = label;
+        opt2.textContent = label;
+        fromSelect.appendChild(opt1);
+        toSelect.appendChild(opt2);
+      }
+
+      if (toSelect.options.length > 1) {
+        toSelect.selectedIndex = 1;
+      }
+    }
+
+    categorySelect.addEventListener("change", populateUnits);
+
+    // --------------- Conversion logic ---------------------
+
+    const ATM_KPA = 101.325;
+
+    function applyPressureMode(valueInPa, mode) {
+      // Convert Pa to kPa, adjust, then back to Pa
+      const kPa = valueInPa / 1000;
+
+      if (mode === "abs-to-gage") {
+        const gageKPa = kPa - ATM_KPA;
+        return gageKPa * 1000;
+      }
+      if (mode === "gage-to-abs") {
+        const absKPa = kPa + ATM_KPA;
+        return absKPa * 1000;
+      }
+
+      return valueInPa;
+    }
+
+    function convert() {
+      const category = categorySelect.value;
+      const from = fromSelect.value;
+      const to = toSelect.value;
+      const rawValue = valueInput.value;
+      const pressureMode = pressureModeSelect.value;
+
+      errorDiv.textContent = "";
+
+      if (!rawValue) {
+        errorDiv.textContent = "Please enter a value.";
+        return;
+      }
+
+      const value = Number(rawValue);
+      if (!Number.isFinite(value)) {
+        errorDiv.textContent = "Invalid numeric value.";
+        return;
+      }
+
+      let decimals = Number(decimalsInput.value);
+      if (!Number.isInteger(decimals) || decimals < 0 || decimals > 10) {
+        decimals = 4;
+      }
+
+      let result;
+
+      try {
+        if (category === "Temperature") {
+          result = convertTemperature(value, from, to);
+        } else {
+          const catData = data[category];
+          if (!catData || !catData.units[from] || !catData.units[to]) {
+            errorDiv.textContent = "No conversion defined for this category yet.";
+            return;
+          }
+
+          const fromFactor = catData.units[from].factor;
+          const toFactor = catData.units[to].factor;
+
+          let valueInBase = value * fromFactor;
+
+          if (category === "Pressure") {
+            valueInBase = applyPressureMode(valueInBase, pressureMode);
+          }
+
+          result = valueInBase / toFactor;
+        }
+      } catch (e) {
+        console.error(e);
+        errorDiv.textContent = "Conversion error: " + e.message;
+        return;
+      }
+
+      const formatted = result.toFixed(decimals);
+      resultDiv.textContent = `${value} ${from} = ${formatted} ${to}`;
+    }
+
+    convertBtn.addEventListener("click", convert);
+    valueInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") convert();
+    });
+
+    // Init
+    categorySelect.value = "Length";
+    populateUnits();
   </script>
 </body>
 </html>
+
