@@ -145,265 +145,199 @@
     // For temperature we handle separately with formulas because of offsets.
 
     const data = {
-      "Length": {
-        base: "meter",
-        units: {
-          m:   { label: "meter (m)",           factor: 1 },
-          cm:  { label: "centimeter (cm)",     factor: 0.01 },
-          mm:  { label: "millimeter (mm)",     factor: 0.001 },
-          km:  { label: "kilometer (km)",      factor: 1000 },
-          in:  { label: "inch (in)",           factor: 0.0254 },
-          ft:  { label: "foot (ft)",           factor: 0.3048 }
-        }
-      },
+  "Length": {
+    base: "meter",
+    units: {
+      m:   { label: "meter (m)",           factor: 1 },
+      cm:  { label: "centimeter (cm)",     factor: 0.01 },
+      mm:  { label: "millimeter (mm)",     factor: 0.001 },
+      km:  { label: "kilometer (km)",      factor: 1000 },
+      in:  { label: "inch (in)",           factor: 0.0254 },          // exact
+      ft:  { label: "foot (ft)",           factor: 0.3048 },          // exact
+      yd:  { label: "yard (yd)",           factor: 0.9144 },          // exact
+      mi:  { label: "mile (mi)",           factor: 1609.344 }         // exact
+    }
+  },
 
-      "Mass": {
-        base: "kilogram",
-        units: {
-          kg: { label: "kilogram (kg)", factor: 1 },
-          g:  { label: "gram (g)",      factor: 0.001 },
-          lb: { label: "pound (lb)",    factor: 0.45359237 },
-          ton:{ label: "metric ton (t)",factor: 1000 }
-        }
-      },
+  "Mass": {
+    base: "kilogram",
+    units: {
+      kg: { label: "kilogram (kg)", factor: 1 },
+      g:  { label: "gram (g)",      factor: 0.001 },
+      mg: { label: "milligram (mg)",factor: 0.000001 },
+      lb: { label: "pound (lb)",    factor: 0.45359237 },             // exact
+      oz: { label: "ounce (oz)",    factor: 0.028349523125 },         // exact
+      ton:{ label: "metric ton (t)",factor: 1000 }
+    }
+  },
 
-      "Volume": {
-        base: "cubic meter",
-        units: {
-          "m3":   { label: "cubic meter (m³)",         factor: 1 },
-          "L":    { label: "liter (L)",                factor: 0.001 },
-          "mL":   { label: "milliliter (mL)",          factor: 0.000001 },
-          "ft3":  { label: "cubic foot (ft³)",         factor: 0.0283168466 },
-          "gal":  { label: "US gallon (gal)",          factor: 0.00378541178 }
-        }
-      },
+  "Volume": {
+    base: "cubic meter",
+    units: {
+      "m3":   { label: "cubic meter (m³)",         factor: 1 },
+      "L":    { label: "liter (L)",                factor: 0.001 },
+      "mL":   { label: "milliliter (mL)",          factor: 0.000001 },
+      "ft3":  { label: "cubic foot (ft³)",         factor: 0.028316846592 },  // exact
+      "in3":  { label: "cubic inch (in³)",         factor: 0.000016387064 },  // exact
+      "gal":  { label: "US gallon (gal)",          factor: 0.003785411784 },  // exact
+      "qt":   { label: "US quart (qt)",            factor: 0.000946352946 }   // exact
+    }
+  },
 
-      "Time": {
-        base: "second",
-        units: {
-          s:  { label: "second (s)",   factor: 1 },
-          min:{ label: "minute (min)", factor: 60 },
-          h:  { label: "hour (h)",     factor: 3600 },
-          day:{ label: "day",          factor: 86400 }
-        }
-      },
+  "Area": {
+    base: "square meter",
+    units: {
+      "m2":  { label: "square meter (m²)",   factor: 1 },
+      "cm2": { label: "square centimeter (cm²)", factor: 0.0001 },
+      "mm2": { label: "square millimeter (mm²)", factor: 0.000001 },
+      "ft2": { label: "square foot (ft²)",   factor: 0.09290304 },       // exact
+      "in2": { label: "square inch (in²)",   factor: 0.00064516 },       // exact
+      "ha":  { label: "hectare (ha)",        factor: 10000 }
+    }
+  },
 
-      "Velocity, Speed": {
-        base: "meter per second",
-        units: {
-          "m/s":  { label: "meter per second (m/s)", factor: 1 },
-          "km/h": { label: "kilometer per hour (km/h)", factor: 0.277777778 },
-          "ft/s": { label: "foot per second (ft/s)", factor: 0.3048 },
-          "mph":  { label: "mile per hour (mph)",    factor: 0.44704 }
-        }
-      },
+  "Pressure": {
+    base: "pascal",
+    units: {
+      Pa:   { label: "pascal (Pa)",       factor: 1 },
+      kPa:  { label: "kilopascal (kPa)",  factor: 1000 },
+      MPa:  { label: "megapascal (MPa)",  factor: 1_000_000 },
+      bar:  { label: "bar",               factor: 100000 },
+      atm:  { label: "standard atmosphere (atm)", factor: 101325 },
+      psi:  { label: "pound per square inch (psi)", factor: 6894.757293168 } // exact
+    }
+  },
 
-      "Acceleration": {
-        base: "meter per second squared",
-        units: {
-          "m/s2": { label: "meter per second² (m/s²)", factor: 1 },
-          "ft/s2":{ label: "foot per second² (ft/s²)", factor: 0.3048 },
-          "g":    { label: "standard gravity (g)",     factor: 9.80665 }
-        }
-      },
+  "Energy, Work": {
+    base: "joule",
+    units: {
+      J:   { label: "joule (J)",        factor: 1 },
+      kJ:  { label: "kilojoule (kJ)",   factor: 1000 },
+      Wh:  { label: "watt-hour (Wh)",   factor: 3600 },                  // 1 Wh = 3600 J
+      kWh: { label: "kilowatt-hour (kWh)", factor: 3_600_000 },
+      cal: { label: "calorie (thermochemical, cal)", factor: 4.184 },    // commonly used
+      kcal:{ label: "kilocalorie (kcal)", factor: 4184 },
+      Btu: { label: "Btu (IT)",         factor: 1055.05585262 }          // IT Btu
+    }
+  },
 
-      "Area": {
-        base: "square meter",
-        units: {
-          "m2":  { label: "square meter (m²)",   factor: 1 },
-          "cm2": { label: "square centimeter (cm²)", factor: 0.0001 },
-          "mm2": { label: "square millimeter (mm²)", factor: 0.000001 },
-          "ft2": { label: "square foot (ft²)",   factor: 0.09290304 },
-          "ha":  { label: "hectare (ha)",        factor: 10000 }
-        }
-      },
+  "Force": {
+    base: "newton",
+    units: {
+      N:  { label: "newton (N)",        factor: 1 },
+      kN: { label: "kilonewton (kN)",   factor: 1000 },
+      lbf:{ label: "pound‑force (lbf)", factor: 4.4482216152605 }        // exact
+    }
+  },
 
-      "Density": {
-        base: "kilogram per cubic meter",
-        units: {
-          "kg/m3": { label: "kg/m³", factor: 1 },
-          "g/cm3": { label: "g/cm³", factor: 1000 },
-          "lb/ft3":{ label: "lb/ft³",factor: 16.0184634 }
-        }
-      },
+  "Density": {
+    base: "kilogram per cubic meter",
+    units: {
+      "kg/m3": { label: "kg/m³", factor: 1 },
+      "g/cm3": { label: "g/cm³", factor: 1000 },                         // 1 g/cm³ = 1000 kg/m³
+      "lb/ft3":{ label: "lb/ft³",factor: 16.01846337396 }                // exact
+    }
+  },
 
-      "Energy, Work": {
-        base: "joule",
-        units: {
-          J:   { label: "joule (J)",        factor: 1 },
-          kJ:  { label: "kilojoule (kJ)",   factor: 1000 },
-          Wh:  { label: "watt-hour (Wh)",   factor: 3600 },
-          kWh: { label: "kilowatt-hour (kWh)", factor: 3_600_000 },
-          cal: { label: "calorie (cal)",    factor: 4.184 }
-        }
-      },
+  "Surface Density": {
+    base: "kilogram per square meter",
+    units: {
+      "kg/m2": { label: "kg/m²", factor: 1 },
+      "g/cm2": { label: "g/cm²", factor: 10 },                            // 1 g/cm² = 10 kg/m²
+      "lb/ft2":{ label: "lb/ft²",factor: 4.88242763638 }                 // from exact lb & ft
+    }
+  },
 
-      "Force": {
-        base: "newton",
-        units: {
-          N:  { label: "newton (N)",        factor: 1 },
-          kN: { label: "kilonewton (kN)",   factor: 1000 },
-          lbf:{ label: "pound-force (lbf)", factor: 4.44822162 }
-        }
-      },
+  "Surface Tension": {
+    base: "newton per meter",
+    units: {
+      "N/m":  { label: "N/m",  factor: 1 },
+      "mN/m": { label: "mN/m", factor: 0.001 },
+      "dyne/cm": { label: "dyne/cm", factor: 0.001 }                    // 1 dyne/cm = 0.001 N/m
+    }
+  },
 
-      "Mass Flow": {
-        base: "kilogram per second",
-        units: {
-          "kg/s": { label: "kg/s", factor: 1 },
-          "kg/h": { label: "kg/h", factor: 1/3600 },
-          "lb/s": { label: "lb/s", factor: 0.45359237 },
-          "lb/h": { label: "lb/h", factor: 0.45359237/3600 }
-        }
-      },
+  "Viscosity (Dynamic)": {
+    base: "pascal second",
+    units: {
+      "Pa·s": { label: "Pa·s", factor: 1 },
+      "mPa·s":{ label: "mPa·s", factor: 0.001 },
+      "cP":   { label: "centipoise (cP)", factor: 0.001 }               // 1 cP = 1 mPa·s
+    }
+  },
 
-      "Volume Flow": {
-        base: "cubic meter per second",
-        units: {
-          "m3/s":  { label: "m³/s", factor: 1 },
-          "m3/h":  { label: "m³/h", factor: 1/3600 },
-          "L/s":   { label: "L/s",  factor: 0.001 },
-          "L/min": { label: "L/min",factor: 0.001/60 },
-          "gpm":   { label: "US gallon per minute (gpm)", factor: 0.00378541178/60 }
-        }
-      },
+  "Viscosity (Kinematic)": {
+    base: "square meter per second",
+    units: {
+      "m2/s": { label: "m²/s", factor: 1 },
+      "cSt":  { label: "centistokes (cSt)", factor: 1e-6 }              // 1 cSt = 10^-6 m²/s
+    }
+  },
 
-      "Power, Heat Flow, Duty": {
-        base: "watt",
-        units: {
-          W:   { label: "watt (W)",      factor: 1 },
-          kW:  { label: "kilowatt (kW)", factor: 1000 },
-          MW:  { label: "megawatt (MW)", factor: 1_000_000 },
-          hp:  { label: "horsepower (hp)", factor: 745.699872 }
-        }
-      },
-
-      "Pressure": {
-        base: "pascal",
-        units: {
-          Pa:   { label: "pascal (Pa)",       factor: 1 },
-          kPa:  { label: "kilopascal (kPa)",  factor: 1000 },
-          bar:  { label: "bar",               factor: 100000 },
-          atm:  { label: "standard atmosphere (atm)", factor: 101325 },
-          psi:  { label: "pound per square inch (psi)", factor: 6894.75729 }
-        }
-      },
-
-      "Temperature Difference": {
-        base: "kelvin difference",
-        units: {
-          K:  { label: "kelvin (K)",  factor: 1 },
-          C:  { label: "degree Celsius (°C)", factor: 1 },
-          F:  { label: "degree Fahrenheit (°F)", factor: 5/9 } // ΔF = 9/5 ΔC
-        }
-      },
-
-      "Surface Density": {
-        base: "kilogram per square meter",
-        units: {
-          "kg/m2": { label: "kg/m²", factor: 1 },
-          "g/cm2": { label: "g/cm²", factor: 10 },
-          "lb/ft2":{ label: "lb/ft²",factor: 4.88242764 }
-        }
-      },
-
-      "Surface Tension": {
-        base: "newton per meter",
-        units: {
-          "N/m":  { label: "N/m",  factor: 1 },
-          "mN/m": { label: "mN/m", factor: 0.001 },
-          "dyne/cm": { label: "dyne/cm", factor: 0.001 } // 1 dyne/cm = 0.001 N/m
-        }
-      },
-
-      "Viscosity (Dynamic)": {
-        base: "pascal second",
-        units: {
-          "Pa·s": { label: "Pa·s", factor: 1 },
-          "mPa·s":{ label: "mPa·s", factor: 0.001 },
-          "cP":   { label: "centipoise (cP)", factor: 0.001 }
-        }
-      },
-
-      "Viscosity (Kinematic)": {
-        base: "square meter per second",
-        units: {
-          "m2/s": { label: "m²/s", factor: 1 },
-          "cSt":  { label: "centistokes (cSt)", factor: 1e-6 }
-        }
-      },
-
-      "Heat Capacity, Entropy": {
-        base: "joule per kilogram kelvin",
-        units: {
-          "J/(kg·K)":  { label: "J/(kg·K)", factor: 1 },
-          "kJ/(kg·K)": { label: "kJ/(kg·K)", factor: 1000 },
-          "Btu/(lb·°F)": { label: "Btu/(lb·°F)", factor: 4186.8/0.45359237/1.8 } // approx
-        }
-      },
-
-      "Heat Conductivity": {
-        base: "watt per meter kelvin",
-        units: {
-          "W/(m·K)":  { label: "W/(m·K)", factor: 1 },
-          "kW/(m·K)": { label: "kW/(m·K)", factor: 1000 },
-          "Btu/(h·ft·°F)": { label: "Btu/(h·ft·°F)", factor: 1.730735e0 } // approx
-        }
-      },
-
-      "Heat Exchanged, Enthalpy": {
-        base: "joule",
-        units: {
-          J:   { label: "joule (J)",      factor: 1 },
-          kJ:  { label: "kilojoule (kJ)", factor: 1000 },
-          Btu: { label: "Btu",            factor: 1055.06 }
-        }
-      },
-
-      "Heat Transfer, Radiation": {
-        base: "watt",
-        units: {
-          W:  { label: "watt (W)",      factor: 1 },
-          kW: { label: "kilowatt (kW)", factor: 1000 },
-          "Btu/h": { label: "Btu per hour (Btu/h)", factor: 0.29307107 }
-        }
-      },
-
-      "Heat Resistance, Fouling": {
-        base: "square meter kelvin per watt",
-        units: {
-          "m2·K/W":   { label: "m²·K/W", factor: 1 },
-          "ft2·°F·h/Btu": { label: "ft²·°F·h/Btu", factor: 0.1761 } // approx
-        }
-      },
-
-      "Pressure Drop / Length": {
-        base: "pascal per meter",
-        units: {
-          "Pa/m": { label: "Pa/m", factor: 1 },
-          "kPa/m":{ label: "kPa/m",factor: 1000 },
-          "psi/ft":{ label: "psi/ft", factor: 6894.75729/0.3048 }
-        }
-      },
-
-      "Light": {
-        base: "lux",
-        units: {
-          lx: { label: "lux (lx)", factor: 1 },
-          "lm/m2": { label: "lumen per m² (lm/m²)", factor: 1 },
-          fc: { label: "foot-candle (fc)", factor: 10.7639104 }
-        }
-      },
-
-      "Angle": {
-        base: "radian",
-        units: {
-          rad: { label: "radian (rad)", factor: 1 },
-          deg: { label: "degree (°)",  factor: Math.PI / 180 },
-          grad:{ label: "gradian (gon)", factor: Math.PI / 200 }
-        }
+  "Heat Capacity, Entropy": {
+    // specific heat capacity per mass
+    base: "joule per kilogram kelvin",
+    units: {
+      "J/(kg·K)":  { label: "J/(kg·K)", factor: 1 },
+      "kJ/(kg·K)": { label: "kJ/(kg·K)", factor: 1000 },
+      "Btu/(lb·°F)": { 
+        label: "Btu/(lb·°F)", 
+        // 1 Btu/(lb·°F) = 4186.8 J/(kg·K) (this is now correct)
+        factor: 4186.8 
       }
-    };
+    }
+  },
+
+  "Time": {
+    base: "second",
+    units: {
+      s:   { label: "second (s)",   factor: 1 },
+      min: { label: "minute (min)", factor: 60 },
+      h:   { label: "hour (h)",     factor: 3600 },
+      day: { label: "day",          factor: 86400 }
+    }
+  },
+
+  "Velocity, Speed": {
+    base: "meter per second",
+    units: {
+      "m/s":  { label: "meter per second (m/s)", factor: 1 },
+      "km/h": { label: "kilometer per hour (km/h)", factor: 1000/3600 }, // 1 km/h = 0.277777...
+      "ft/s": { label: "foot per second (ft/s)", factor: 0.3048 },
+      "mph":  { label: "mile per hour (mph)",    factor: 1609.344/3600 }
+    }
+  },
+
+  "Acceleration": {
+    base: "meter per second squared",
+    units: {
+      "m/s2": { label: "meter per second² (m/s²)", factor: 1 },
+      "ft/s2":{ label: "foot per second² (ft/s²)", factor: 0.3048 },
+      "g":    { label: "standard gravity (g)",     factor: 9.80665 }     // conventional g
+    }
+  },
+
+  "Temperature Difference": {
+    // this is only for ΔT; absolute temperature uses the separate function
+    base: "kelvin difference",
+    units: {
+      K:  { label: "kelvin (K)",  factor: 1 },
+      C:  { label: "degree Celsius (°C)", factor: 1 },                   // ΔC = ΔK
+      F:  { label: "degree Fahrenheit (°F)", factor: 5/9 }               // ΔF = 5/9 ΔK
+    }
+  },
+
+  "Energy, Work (per mass)": {
+    // enthalpy-like, use J/kg as base if you need it later
+    base: "joule per kilogram",
+    units: {
+      "J/kg":   { label: "J/kg", factor: 1 },
+      "kJ/kg":  { label: "kJ/kg", factor: 1000 },
+      "Btu/lb": { label: "Btu/lb", factor: 1055.05585262 / 0.45359237 }
+    }
+  }
+};
+
 
     // Temperature (absolute) is handled specially.
     const temperatureUnits = ["°C", "°F", "K"];
