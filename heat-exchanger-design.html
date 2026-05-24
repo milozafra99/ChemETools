@@ -107,8 +107,8 @@
       border-radius: 4px;
       border: 1px solid #4b5563;
       font-size: 0.85rem;
-      background: #ffffff;
-      color: #111827;
+      background: #020617;
+      color: #e5e7eb;
       outline: none;
       transition: border-color 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
     }
@@ -130,14 +130,8 @@
       align-items: center;
     }
 
-    .buttons-row {
-      margin-top: 0.75rem;
-      display: flex;
-      gap: 0.75rem;
-      flex-wrap: wrap;
-    }
-
     button {
+      margin-top: 0.75rem;
       padding: 0.55rem 1.4rem;
       border-radius: 999px;
       border: none;
@@ -148,14 +142,6 @@
       font-size: 0.9rem;
     }
     button:hover { background: #1d4ed8; }
-
-    .btn-secondary {
-      background: #111827;
-      color: #e5e7eb;
-    }
-    .btn-secondary:hover {
-      background: #1f2937;
-    }
 
     .note {
       font-size: 0.8rem;
@@ -178,7 +164,7 @@
     .output-highlight {
       border-color: #38bdf8 !important;
       box-shadow: 0 0 0 1px #1d4ed8, 0 0 12px rgba(56,189,248,0.45);
-      background-color: #e0f2fe;
+      background-color: #020617;
     }
   </style>
 </head>
@@ -219,13 +205,13 @@
               <td>Input temperature, t(in)</td>
               <td>
                 <div class="cell-flex">
-                  <input type="number" id="tColdIn" step="any">
+                  <input type="number" id="tColdIn" step="any" value="34">
                   <select id="u_tColdIn"></select>
                 </div>
               </td>
               <td>
                 <div class="cell-flex">
-                  <input type="number" id="tHotIn" step="any">
+                  <input type="number" id="tHotIn" step="any" value="72">
                   <select id="u_tHotIn"></select>
                 </div>
               </td>
@@ -235,13 +221,13 @@
               <td>Output temperature, t(out)</td>
               <td>
                 <div class="cell-flex">
-                  <input type="number" id="tColdOut" step="any">
+                  <input type="number" id="tColdOut" step="any" value="44">
                   <select id="u_tColdOut"></select>
                 </div>
               </td>
               <td>
                 <div class="cell-flex">
-                  <input type="number" id="tHotOut" step="any">
+                  <input type="number" id="tHotOut" step="any" value="60">
                   <select id="u_tHotOut"></select>
                 </div>
               </td>
@@ -251,13 +237,13 @@
               <td>Specific heat capacity, Cp</td>
               <td>
                 <div class="cell-flex">
-                  <input type="number" id="cpCold" step="any">
+                  <input type="number" id="cpCold" step="any" value="2100">
                   <select id="u_cpCold"></select>
                 </div>
               </td>
               <td>
                 <div class="cell-flex">
-                  <input type="number" id="cpHot" step="any">
+                  <input type="number" id="cpHot" step="any" value="2600">
                   <select id="u_cpHot"></select>
                 </div>
               </td>
@@ -267,7 +253,7 @@
               <td>Mass flow rate, M (cold input / hot result)</td>
               <td>
                 <div class="cell-flex">
-                  <input type="number" id="mCold" step="any">
+                  <input type="number" id="mCold" step="any" value="140000">
                   <select id="u_mCold"></select>
                 </div>
               </td>
@@ -330,7 +316,7 @@
               <td>Overall heat transfer coeff. – clean, U</td>
               <td>
                 <div class="cell-flex">
-                  <input type="number" id="uClean" step="any">
+                  <input type="number" id="uClean" step="any" value="800">
                   <select id="u_uClean"></select>
                 </div>
               </td>
@@ -339,7 +325,7 @@
               <td>Fouling coefficient, cold side, Rd1</td>
               <td>
                 <div class="cell-flex">
-                  <input type="number" id="rd1" step="any">
+                  <input type="number" id="rd1" step="any" value="0.0002">
                   <select id="u_rd1"></select>
                 </div>
               </td>
@@ -348,7 +334,7 @@
               <td>Fouling coefficient, hot side, Rd2</td>
               <td>
                 <div class="cell-flex">
-                  <input type="number" id="rd2" step="any">
+                  <input type="number" id="rd2" step="any" value="0.0004">
                   <select id="u_rd2"></select>
                 </div>
               </td>
@@ -375,7 +361,7 @@
               <td>Design margin on surface</td>
               <td>
                 <div class="cell-flex">
-                  <input type="number" id="margin" step="any">
+                  <input type="number" id="margin" step="any" value="20">
                   <span style="font-size:0.8rem;">%</span>
                 </div>
               </td>
@@ -392,10 +378,7 @@
           </table>
         </div>
 
-        <div class="buttons-row">
-          <button id="calcBtn">Calculate</button>
-          <button id="clearBtn" class="btn-secondary" type="button">Clear all</button>
-        </div>
+        <button id="calcBtn">Calculate</button>
       </div>
 
       <!-- NOTES & REFERENCE TABLES -->
@@ -662,7 +645,8 @@
         }
         const converted = convertUnits(category, value, baseUnitKey, unitKey);
         el.value = converted.toFixed(digits);
-        void el.offsetWidth;
+        // highlight updated field
+        void el.offsetWidth; // force reflow so animation restarts
         el.classList.add("output-highlight");
       }
 
@@ -705,7 +689,7 @@
 
       const flowRegime = document.getElementById("flowRegime").value;
 
-      // Convert to internal units
+      // Convert to internal units (°C, kg/s, J/kgK)
       const Tc_in  = convertUnits("Temperature", tCi, tCi_u, "°C");
       const Tc_out = convertUnits("Temperature", tCo, tCo_u, "°C");
       const Th_in  = convertUnits("Temperature", tHi, tHi_u, "°C");
@@ -723,7 +707,7 @@
       setOutput("qColdDisplay", Q_W, "Power, Heat Flow, Duty", "W", qC_u, 2);
       setOutput("qHotDisplay",  Q_W, "Power, Heat Flow, Duty", "W", qH_u, 2);
 
-      // 2) Hot side mass flow (kg/s)
+      // 2) Hot side mass flow
       const dT_hot = Th_in - Th_out;
       let MH_kg_s = NaN;
       if (CpH && Math.abs(dT_hot) > 0) {
@@ -779,24 +763,8 @@
       setOutput("areaActualDisplay", A_act, "Area", "m2", Aact_u, 2);
     }
 
-    function clearAll() {
-      const idsToClear = [
-        "tColdIn","tColdOut","tHotIn","tHotOut",
-        "cpCold","cpHot","mCold","uClean","rd1","rd2","margin",
-        "mHotDisplay","qColdDisplay","qHotDisplay",
-        "lmtdDisplay","udDisplay","areaEffectiveDisplay","areaActualDisplay"
-      ];
-      idsToClear.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) {
-          el.value = "";
-          el.classList.remove("output-highlight");
-        }
-      });
-    }
-
     document.getElementById("calcBtn").addEventListener("click", calcHeatExchanger);
-    document.getElementById("clearBtn").addEventListener("click", clearAll);
   </script>
 </body>
 </html>
+
