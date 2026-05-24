@@ -153,8 +153,8 @@
       <div class="app">
         <p>
           Convert between SI and English units across multiple categories. For
-          <strong>Pressure</strong>, you can also convert between absolute and
-          gauge pressure using a fixed atmospheric pressure of 101.325 kPa.
+          <strong>Pressure</strong>, select absolute (A) or gauge (G) units.
+          Gauge pressure is always absolute minus 101.325&nbsp;kPa.
         </p>
 
         <label for="category">Category</label>
@@ -182,20 +182,14 @@
           </div>
         </div>
 
-        <label for="pressureMode">Pressure type adjustment (Pressure only)</label>
-        <select id="pressureMode">
-          <option value="none">None (same type, just change units)</option>
-          <option value="abs-to-gage">Absolute → Gauge</option>
-          <option value="gage-to-abs">Gauge → Absolute</option>
-        </select>
-
         <button id="convertBtn">Convert</button>
 
         <div id="result" class="result">Result will appear here.</div>
         <div id="error" class="error"></div>
         <div class="muted">
           Absolute temperature (°C / °F / K) uses formulas with offsets. Other
-          categories use linear conversions via an internal base unit.
+          categories use linear conversions via an internal base unit. Pressure
+          always passes through absolute kPa internally to handle (A) and (G).
         </div>
       </div>
     </div>
@@ -347,6 +341,17 @@
         }
       },
 
+      "Heat Transfer, Radiation": {
+        // overall heat transfer / flux magnitude
+        base: "watt per square meter kelvin",
+        units: {
+          "W/(m2·K)":  { label: "W/(m²·K)", factor: 1 },
+          "kW/(m2·K)": { label: "kW/(m²·K)", factor: 1000 },
+          "W/m2":      { label: "W/m² (radiation)", factor: 1 },
+          "kW/m2":     { label: "kW/m² (radiation)", factor: 1000 }
+        }
+      },
+
       // FLUID / TRANSPORT
       "Density": {
         base: "kilogram per cubic meter",
@@ -422,15 +427,27 @@
         }
       },
 
+      // Pressure: base is kPa ABSOLUTE. Each unit has factor-to-kPa and type (A/G).
       "Pressure": {
-        base: "pascal",
+        base: "kilopascal absolute",
         units: {
-          Pa:   { label: "pascal (Pa)",       factor: 1 },
-          kPa:  { label: "kilopascal (kPa)",  factor: 1000 },
-          MPa:  { label: "megapascal (MPa)",  factor: 1_000_000 },
-          bar:  { label: "bar",               factor: 100000 },
-          atm:  { label: "standard atmosphere (atm)", factor: 101325 },
-          psi:  { label: "pound per square inch (psi)", factor: 6894.757293168 }
+          "Pa (A)":  { label: "Pa (A)",  factor: 0.001,            kind: "A" },
+          "Pa (G)":  { label: "Pa (G)",  factor: 0.001,            kind: "G" },
+
+          "kPa (A)": { label: "kPa (A)", factor: 1,                kind: "A" },
+          "kPa (G)": { label: "kPa (G)", factor: 1,                kind: "G" },
+
+          "MPa (A)": { label: "MPa (A)", factor: 1000,             kind: "A" },
+          "MPa (G)": { label: "MPa (G)", factor: 1000,             kind: "G" },
+
+          "bar (A)": { label: "bar (A)", factor: 100,              kind: "A" },
+          "bar (G)": { label: "bar (G)", factor: 100,              kind: "G" },
+
+          "atm (A)": { label: "atm (A)", factor: 101.325,          kind: "A" },
+          "atm (G)": { label: "atm (G)", factor: 101.325,          kind: "G" },
+
+          "psi (A)": { label: "psi (A)", factor: 6.894757293168,   kind: "A" },
+          "psi (G)": { label: "psi (G)", factor: 6.894757293168,   kind: "G" }
         }
       },
 
@@ -486,7 +503,6 @@
     const toSelect = document.getElementById("toUnit");
     const valueInput = document.getElementById("value");
     const decimalsInput = document.getElementById("decimals");
-    const pressureModeSelect = document.getElementById("pressureMode");
     const resultDiv = document.getElementById("result");
     const errorDiv = document.getElementById("error");
     const convertBtn = document.getElementById("convertBtn");
@@ -502,7 +518,7 @@
       "Heat Capacity, Entropy",
       "Heat Conductivity",
       "Heat Exchanged, Enthalpy",
-      "Heat Transfer, Radiation", // placeholder
+      "Heat Transfer, Radiation",
       "Heat Resistance, Fouling",
       "Heat Transfer",            // placeholder
       "Length",
@@ -572,22 +588,34 @@
 
     // --------------- Conversion logic ---------------------
 
-    const ATM_KPA = 101.325;
+    const ATM_KPA = 101.325; // atmospheric pressure for abs↔gage
 
-    function applyPressureMode(valueInPa, mode) {
-      // Convert Pa to kPa, adjust, then back to Pa
-      const kPa = valueInPa / 1000;
+    function convertPressure(value, fromKey, toKey) {
+      const units = data["Pressure"].units;
+      const from = units[fromKey];
+      const to = units[toKey];
 
-      if (mode === "abs-to-gage") {
-        const gageKPa = kPa - ATM_KPA;
-        return gageKPa * 1000;
-      }
-      if (mode === "gage-to-abs") {
-        const absKPa = kPa + ATM_KPA;
-        return absKPa * 1000;
+      if (!from || !to) {
+        throw new Error("Unsupported pressure unit");
       }
 
-      return valueInPa;
+      // 1) Convert source to absolute kPa
+      let kPa = value * from.factor;          // in kPa (could be A or G)
+      let absKPa;
+
+      if (from.kind === "G") {
+        absKPa = kPa + ATM_KPA;              // Pg = Pabs − Patm
+      } else {
+        absKPa = kPa;                        // already absolute
+      }
+
+      // 2) Convert absolute kPa to target kind
+      if (to.kind === "G") {
+        const gageKPa = absKPa - ATM_KPA;
+        return gageKPa / to.factor;
+      } else {
+        return absKPa / to.factor;
+      }
     }
 
     function convert() {
@@ -595,7 +623,6 @@
       const from = fromSelect.value;
       const to = toSelect.value;
       const rawValue = valueInput.value;
-      const pressureMode = pressureModeSelect.value;
 
       errorDiv.textContent = "";
 
@@ -620,6 +647,8 @@
       try {
         if (category === "Temperature") {
           result = convertTemperature(value, from, to);
+        } else if (category === "Pressure") {
+          result = convertPressure(value, from, to);
         } else {
           const catData = data[category];
           if (!catData || !catData.units[from] || !catData.units[to]) {
@@ -630,12 +659,7 @@
           const fromFactor = catData.units[from].factor;
           const toFactor = catData.units[to].factor;
 
-          let valueInBase = value * fromFactor;
-
-          if (category === "Pressure") {
-            valueInBase = applyPressureMode(valueInBase, pressureMode);
-          }
-
+          const valueInBase = value * fromFactor;
           result = valueInBase / toFactor;
         }
       } catch (e) {
