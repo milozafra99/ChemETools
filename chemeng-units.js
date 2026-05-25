@@ -385,7 +385,7 @@ function convertTemperature(value, from, to) {
   if (to === "°C") return K - 273.15;
   if (to === "°F") return (K - 273.15) * 9 / 5 + 32;
   if (to === "K")  return K;
-  if (to === "R") return K * 9 / 5
+  if (to === "R") return K * 9 / 5;
   throw new Error("Unknown temperature unit");
 }
 
