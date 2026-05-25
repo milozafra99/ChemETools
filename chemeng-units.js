@@ -119,6 +119,8 @@ const UnitData = {
     units: {
       "W/(m·K)":       { label: "W/(m·K)",       factor: 1 },
       "kW/(m·K)":      { label: "kW/(m·K)",      factor: 1000 },
+      "cal/h/(cm·K)": { label: "cal/h/(cm·K)", factor: 4.184 * 100 / 3600 },
+      "kcal/h/(m·K)": { label: "kcal/h/(m·K)", factor: 4184 / 3600 },
       "Btu/(h·ft·°F)": { label: "Btu/(h·ft·°F)", factor: 1.730735 }
     }
   },
@@ -127,6 +129,8 @@ const UnitData = {
     base: "square meter kelvin per watt",
     units: {
       "m2·K/W":       { label: "m²·K/W",       factor: 1 },
+      "cm2·h·K/cal":  { label: "cm2·h·K/cal",  factor: 3600 / (4.184 * 10000) },
+      "m2·h·K/kcal":  { label: "m2·h·K/kcal",  factor: 3600 / 4184 },
       "ft2·h·°F/Btu": { label: "ft²·h·°F/Btu", factor: 0.1761101838 }
     }
   },
@@ -134,9 +138,11 @@ const UnitData = {
   "Heat Transfer": {
     base: "watt per square meter kelvin",
     units: {
-      "W/(m2·K)":       { label: "W/(m²·K)",       factor: 1 },
-      "kW/(m2·K)":      { label: "kW/(m²·K)",      factor: 1000 },
-      "Btu/(h·ft2·°F)": { label: "Btu/(h·ft²·°F)", factor: 5.678263 }
+      "W/(m2·K)":        { label: "W/(m²·K)",       factor: 1 },
+      "kW/(m2·K)":       { label: "kW/(m²·K)",      factor: 1000 },
+      "cal/h/(cm2·K)":  { label: "cal/h/(cm2·K)", factor: 4.184 * 10000 / 3600 },
+      "kcal/h/(m2·K)":  { label: "kcal/h/(m2·K)", factor: 4184 / 3600 },
+      "Btu/(h·ft2·°F)":  { label: "Btu/(h·ft²·°F)", factor: 5.678263 }
     }
   },
 
@@ -145,6 +151,8 @@ const UnitData = {
     units: {
       "W/m2":        { label: "W/m²",        factor: 1 },
       "kW/m2":       { label: "kW/m²",       factor: 1000 },
+      "cal/(h·cm2)":  { label: "cal/h/(cm2·K)", factor: 4.184 * 10000 / 3600 },
+      "kcal/(h·m2)":  { label: "kcal/h/(m2·K)", factor: 4184 / 3600 },
       "Btu/(h·ft2)": { label: "Btu/(h·ft²)", factor: 3.15459 }
     }
   },
@@ -163,11 +171,13 @@ const UnitData = {
   "Power, Heat Flow, Duty": {
     base: "watt",
     units: {
-      W:       { label: "watt (W)",             factor: 1 },
-      kW:      { label: "kilowatt (kW)",        factor: 1000 },
-      MW:      { label: "megawatt (MW)",        factor: 1_000_000 },
-      hp:      { label: "horsepower (hp)",      factor: 745.699872 },
-      "Btu/h": { label: "Btu per hour (Btu/h)", factor: 1055.05585262 / 3600 }
+      W:        { label: "watt (W)",                       factor: 1 },
+      kW:       { label: "kilowatt (kW)",                  factor: 1000 },
+      "cal/h":  { label: "calories per hour (cal/h)",      factor: 4.184 / 3600 },
+      "kcal/h": { label: "kilocalories per hour (kcal/h)", factor: 4184 / 3600 },
+      MW:       { label: "megawatt (MW)",                  factor: 1_000_000 },
+      hp:       { label: "horsepower (hp)",                factor: 745.699872 },
+      "Btu/h":  { label: "Btu per hour (Btu/h)",           factor: 1055.05585262 / 3600 }
     }
   },
 
@@ -175,7 +185,9 @@ const UnitData = {
     base: "kilogram per cubic meter",
     units: {
       "kg/m3":  { label: "kg/m³",   factor: 1 },
+      "g/L":  { label: "g/L",   factor: 1 },
       "g/cm3":  { label: "g/cm³",   factor: 1000 },
+      "g/mL":  { label: "g/mL",   factor: 1000 },
       "lb/ft3": { label: "lbm/ft³", factor: 16.01846337396 }
     }
   },
