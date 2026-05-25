@@ -1,8 +1,3 @@
-// chemeng-units.js
-// Shared units and conversion helpers for all ChemEng Tools calculators.
-
-// ---------- CENTRAL DATA ----------
-
 const UnitData = {
   Length: {
     base: "meter",
