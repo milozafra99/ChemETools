@@ -182,10 +182,28 @@
       margin-top: 0.4rem;
     }
 
-
-    /* Result highlight: applied to calculated fields when updated */
+    .buttons-row {
+      margin-top: 0.75rem;
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+    .btn-secondary {
+      background: #111827;
+      color: #e5e7eb;
+    }
+    .btn-secondary:hover {
+      background: #1f2937;
+    }
+    
+    .result-highlight {
+      color: #e0f2fe;
+    }
+    
     .output-highlight {
       border-color: #38bdf8 !important;
       box-shadow: 0 0 0 1px #1d4ed8, 0 0 12px rgba(56,189,248,0.45);
       background-color: #020617;
     }
+
+    
