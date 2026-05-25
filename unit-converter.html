@@ -54,6 +54,7 @@
           </tr>
           <tr>
             <td>
+              <label for="result">Result:</label>
               <div id="result" class="result">Input a value to convert.</div>
               <div id="error" class="error"></div>
             </td>
@@ -145,8 +146,7 @@
         return;
       }
 
-      resultDiv.textContent =
-        value + " " + fromKey + " = " + result.toFixed(decimals) + " " + toKey;
+      resultDiv.textContent = result.toFixed(decimals);
     }
 
     convertBtn.addEventListener("click", convert);
