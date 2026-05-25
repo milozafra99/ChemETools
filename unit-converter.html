@@ -145,22 +145,7 @@
         errorDiv.textContent = "Conversion error: " + e.message;
         return;
       }
-
-      resultDiv.textContent = result.toFixed(decimals);
-    }
-
-    function setOutput(id, value, category, baseUnitKey, unitKey, digits) {
-      const el = document.getElementById(id);
-      el.classList.remove("output-highlight");
-      if (!Number.isFinite(value)) {
-        el.value = "";
-        return;
-      }
-      const converted = convertUnits(category, value, baseUnitKey, unitKey);
-      el.value = converted.toFixed(digits);
-      // highlight updated field
-      void el.offsetWidth; // force reflow so animation restarts
-      el.classList.add("output-highlight");
+      resultDiv.textContent = result.toFixed(decimals);      
     }
     
     convertBtn.addEventListener("click", convert);
