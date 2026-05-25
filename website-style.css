@@ -72,7 +72,13 @@
       font-size: 0.9rem;
       color: #9ca3af;
     }
-
+    label {
+      font-size: 0.9rem;
+      font-weight: 600;
+      display: block;
+      margin-bottom: 0.25rem;
+      color: #e5e7eb;
+    }
     table {
       border-collapse: collapse;
       width: 100%;
@@ -105,7 +111,7 @@
       transition: border-color 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
     }
 
-    input[readonly] {
+    output {
       width: 100%;
       padding: 0.25rem 0.3rem;
       border-radius: 4px;
@@ -163,6 +169,19 @@
       border-radius: 4px;
       font-size: 0.8rem;
     }
+
+    .error {
+      color: #fca5a5;
+      margin-top: 0.5rem;
+      font-size: 0.9rem;
+    }
+
+    .muted {
+      font-size: 0.8rem;
+      color: #6b7280;
+      margin-top: 0.4rem;
+    }
+
 
     /* Result highlight: applied to calculated fields when updated */
     .output-highlight {
