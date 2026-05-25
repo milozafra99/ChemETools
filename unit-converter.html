@@ -22,37 +22,37 @@
 
   <main>
     <div class="container">
-      <div class="app">
-
-        <label for="category">Category</label>
-        <select id="category"></select>
-
-        <div class="row">
-          <div>
-            <label for="fromUnit">From unit</label>
-            <select id="fromUnit"></select>
-          </div>
-          <div>
-            <label for="toUnit">To unit</label>
-            <select id="toUnit"></select>
-          </div>
+      <div class="scroll-x">
+        <table>
+          <tr>
+            <div>
+              <label for="category">Category</label>
+              <select id="category"></select>
+            </div>
+            <div>
+              <label for="decimals">Decimal places</label>
+              <input id="decimals" type="number" min="0" max="10" value="4" />
+            </div>
+          </tr>  
+          <tr>
+            <div>
+              <label for="value">Value</label>
+              <input id="value" type="number" step="any" placeholder="Enter value" />
+            </div>
+            <div>
+              <label for="fromUnit">From unit</label>
+              <select id="fromUnit"></select>
+            </div>
+              <div id="result" class="result"></div>
+              <div id="error" class="error"></div>
+            <div>
+              <label for="toUnit">To unit</label>
+              <select id="toUnit"></select>
+            </div>
+          </tr>
+          </table>
         </div>
-
-        <div class="row">
-          <div>
-            <label for="value">Value</label>
-            <input id="value" type="number" step="any" placeholder="Enter value" />
-          </div>
-          <div>
-            <label for="decimals">Decimal places</label>
-            <input id="decimals" type="number" min="0" max="10" value="4" />
-          </div>
-        </div>
-
         <button id="convertBtn">Convert</button>
-
-        <div id="result" class="result"></div>
-        <div id="error" class="error"></div>
       </div>
     </div>
   </main>
