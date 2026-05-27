@@ -285,10 +285,14 @@
   <script>
     const $ = id => document.getElementById(id);
 
-    function toCvFromKv(kv) { // Note 5: Kv = 0.856 * Cv // => Cv = Kv / 0.856 return kv / 0.856; }
+    function toCvFromKv(kv) { 
+      // Note 5: Kv = 0.856 * Cv 
+      // => Cv = Kv / 0.856 
+      return kv / 0.856; }
 
     function kvFromSI(Q_m3_per_h, dP_kPa) { 
-      // Definition: Kv = m^3/h of water at 15 °C with ΔP = 1 bar. // General: Kv_required = Q(m3/h) / sqrt(ΔP(bar)) 
+      // Definition: Kv = m^3/h of water at 15 °C with ΔP = 1 bar. 
+      // General: Kv_required = Q(m3/h) / sqrt(ΔP(bar)) 
       const dP_bar = dP_kPa / 100.0;
       if (!(Number.isFinite(Q_m3_per_h) && Q_m3_per_h > 0 && Number.isFinite(dP_bar) && dP_bar > 0))
         return NaN;
@@ -446,7 +450,9 @@
         else if (dPk > 0) regime = "Subcritical";
         $("liqType").value = regime;
 
-        // Exact per Note 5 (via Kv): // Kv_sub = Q(m3/h) / sqrt(ΔP(bar)) // Kv_crit = Q(m3/h) / (Fl * sqrt(ΔPs(bar))) 
+        // Exact per Note 5 (via Kv): 
+        // Kv_sub = Q(m3/h) / sqrt(ΔP(bar)) 
+        // Kv_crit = Q(m3/h) / (Fl * sqrt(ΔPs(bar))) 
         const Kv_sub = kvFromSI(V_m3h, dPk);
         const Kv_crit = Number.isFinite(dPs_kPa) && dPs_kPa > 0 ? (V_m3h / (Fl * Math.sqrt(dPs_kPa / 100.0))) : NaN;
 
