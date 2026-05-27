@@ -66,6 +66,11 @@
     const errorDiv = document.getElementById("error");
     const convertBtn = document.getElementById("convertBtn");
 
+    function convert() {
+      errorDiv.textContent = "";
+      const NumOne = NumOne.value;
+      const NumTwo = NumTwo.value;
+      
       let result;
       try {
         result = NumOne + NumTwo;
