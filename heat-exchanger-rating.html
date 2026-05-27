@@ -2,774 +2,107 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>ChemEng Tools – Heat Exchanger Design</title>
+  <title>Test Page</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <style>
-    * { box-sizing: border-box; }
-    body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: #020617;
-      color: #e5e7eb;
-      margin: 0;
-    }
-    header {
-      border-bottom: 1px solid #111827;
-      background: #020617;
-      position: sticky;
-      top: 0;
-      z-index: 10;
-    }
-    .container {
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 1rem 1.25rem 2rem;
-    }
-    .brand {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 0.5rem;
-      padding: 0.75rem 0;
-    }
-    .brand-left {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-    .logo {
-      width: 28px;
-      height: 28px;
-      border-radius: 8px;
-      background: radial-gradient(circle at 30% 30%, #38bdf8, #1d4ed8);
-    }
-    h1 {
-      font-size: 1.25rem;
-      margin: 0;
-    }
-    a.nav-link {
-      font-size: 0.86rem;
-      color: #93c5fd;
-      text-decoration: none;
-    }
-    a.nav-link:hover { color: #bfdbfe; }
-
-    main .container {
-      display: block;
-    }
-
-    .app {
-      width: 100%;
-      background: #020617;
-      border-radius: 12px;
-      padding: 1.5rem 1.8rem 1.5rem;
-      box-shadow: 0 18px 40px rgba(0,0,0,0.6);
-      border: 1px solid #111827;
-      margin-bottom: 1.5rem;
-    }
-
-    h2 {
-      font-size: 1.1rem;
-      margin-top: 0;
-      margin-bottom: 0.75rem;
-    }
-
-    p {
-      margin-top: 0;
-      margin-bottom: 0.75rem;
-      font-size: 0.9rem;
-      color: #9ca3af;
-    }
-
-    table {
-      border-collapse: collapse;
-      width: 100%;
-      font-size: 0.85rem;
-      margin-bottom: 0.75rem;
-    }
-    th, td {
-      border: 1px solid #111827;
-      padding: 0.3rem 0.4rem;
-      vertical-align: middle;
-    }
-    th {
-      background: #030712;
-      font-weight: 600;
-    }
-
-    .center { text-align: center; }
-    .right  { text-align: right; }
-
-    input[type="number"],
-    input[type="text"] {
-      width: 100%;
-      padding: 0.25rem 0.3rem;
-      border-radius: 4px;
-      border: 1px solid #4b5563;
-      font-size: 0.85rem;
-      background: #ffffff;
-      color: #111827;
-      outline: none;
-      transition: border-color 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
-    }
-
-    input[readonly] {
-      width: 100%;
-      padding: 0.25rem 0.3rem;
-      border-radius: 4px;
-      border: 1px solid #4b5563;
-      font-size: 0.85rem;
-      background: #020617;
-      color: #e5e7eb;
-      outline: none;
-      transition: border-color 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;    
-    }
-
-    select {
-      width: 100%;
-      padding: 0.22rem 0.3rem;
-      border-radius: 4px;
-      border: 1px solid #4b5563;
-      font-size: 0.8rem;
-      background: #ffffff;
-      color: #111827;
-    }
-
-    .cell-flex {
-      display: grid;
-      grid-template-columns: 1.3fr 0.9fr;
-      gap: 0.15rem;
-      align-items: center;
-    }
-
-    button {
-      margin-top: 0.75rem;
-      padding: 0.55rem 1.4rem;
-      border-radius: 999px;
-      border: none;
-      background: #2563eb;
-      color: white;
-      font-weight: 600;
-      cursor: pointer;
-      font-size: 0.9rem;
-    }
-    button:hover { background: #1d4ed8; }
-
-    .note {
-      font-size: 0.8rem;
-      color: #9ca3af;
-      margin-bottom: 0.5rem;
-    }
-
-    .scroll-x {
-      overflow-x: auto;
-    }
-
-    code {
-      background: #0b1120;
-      padding: 0.05rem 0.25rem;
-      border-radius: 4px;
-      font-size: 0.8rem;
-    }
-
-    /* Result highlight: applied to calculated fields when updated */
-    .output-highlight {
-      border-color: #38bdf8 !important;
-      box-shadow: 0 0 0 1px #1d4ed8, 0 0 12px rgba(56,189,248,0.45);
-      background-color: #020617;
-    }
-  </style>
+  <link rel="stylesheet" href="website-style.css">
 </head>
 <body>
-  <header>
-    <div class="container brand">
-      <div class="brand-left">
-        <div class="logo"></div>
-        <div>
-          <h1>Heat Exchanger Design</h1>
-        </div>
-      </div>
-      <a class="nav-link" href="index.html">← Back to all tools</a>
-    </div>
-  </header>
-
+  <div id="tool-nav-container"></div>
+  <script>
+    // Load shared navbar from tool-nav.html
+    (function () {
+      var container = document.getElementById("tool-nav-container");
+      if (!container) return;
+      fetch("tool-nav.html")
+        .then(function (res) { return res.text(); })
+        .then(function (html) {
+          container.innerHTML = html;
+        })
+        .catch(function (err) {
+          console.error("Failed to load navigation:", err);
+        });
+    })();
+  </script>
   <main>
     <div class="container">
-
-      <!-- MAIN CALCULATOR -->
-      <div class="app">
-        <h2>1. Stream data and heat balance</h2>
-
-        <div class="scroll-x">
-          <table>
-            <tr>
-              <th>Item</th>
-              <th class="center">Stream 1</th>
-              <th class="center">Stream 2</th>
-            </tr>
-
-            <tr>
-              <td>Input temperature, T(in)</td>
-              <td>
-                <div class="cell-flex">
-                  <input type="number" id="tColdIn" step="any">
-                  <select id="u_tColdIn"></select>
-                </div>
-              </td>
-              <td>
-                <div class="cell-flex">
-                  <input type="number" id="tHotIn" step="any">
-                  <select id="u_tHotIn"></select>
-                </div>
-              </td>
-            </tr>
-
-            <tr>
-              <td>Output temperature, T(out)</td>
-              <td>
-                <div class="cell-flex">
-                  <input type="number" id="tColdOut" step="any">
-                  <select id="u_tColdOut"></select>
-                </div>
-              </td>
-              <td>
-                <div class="cell-flex">
-                  <input type="number" id="tHotOut" step="any">
-                  <select id="u_tHotOut"></select>
-                </div>
-              </td>
-            </tr>
-
-            <tr>
-              <td>Specific heat capacity, Cp</td>
-              <td>
-                <div class="cell-flex">
-                  <input type="number" id="cpCold" step="any">
-                  <select id="u_cpCold"></select>
-                </div>
-              </td>
-              <td>
-                <div class="cell-flex">
-                  <input type="number" id="cpHot" step="any">
-                  <select id="u_cpHot"></select>
-                </div>
-              </td>
-            </tr>
-
-            <tr>
-              <td>Mass flow rate, m (Note 1)</td>
-              <td>
-                <div class="cell-flex">
-                  <input type="number" id="mCold" step="any">
-                  <select id="u_mCold"></select>
-                </div>
-              </td>
-              <td>
-                <div class="cell-flex">
-                  <input type="text" id="mHotDisplay" readonly>
-                  <select id="u_mHot"></select>
-                </div>
-              </td>
-            </tr>
-
-            <tr>
-              <td>Heat transfer rate, Q</td>
-              <td>
-                <div class="cell-flex">
-                  <input type="text" id="qColdDisplay" readonly>
-                  <select id="u_qCold"></select>
-                </div>
-              </td>
-              <td>
-                <div class="cell-flex">
-                  <input type="text" id="qHotDisplay" readonly>
-                  <select id="u_qHot"></select>
-                </div>
-              </td>
-            </tr>
+      <div class="scroll-x">
+        <table>
+          <tr>
+            <td>
+              <div>
+                <label for="number1">Number 1</label>
+                <input id="value" type="number" step="any" placeholder="Enter value" />
+              </div>
+            </td>
+            <td>
+              <div>
+                <label for="number2">Number 2</label>
+                <input id="value" type="number" step="any" placeholder="Enter value" />
+              </div>
+            </td>
+          </tr>  
+          <tr>
+            <td>
+              <label for="result">Result:</label>
+              <div id="result" class="result">input values to add</div>
+              <div id="error" class="error"></div>
+            </td>
+          </tr>
           </table>
         </div>
-
-        <h2 style="margin-top:1.25rem;">2. LMTD and heat transfer area</h2>
-
-        <div class="scroll-x">
-          <table>
-            <tr>
-              <th>Flow regime</th>
-              <th>LMTD (Note 2)</th>
-            </tr>
-            <tr>
-              <td>
-                <select id="flowRegime">
-                  <option value="counter">Counter‑current</option>
-                  <option value="co">Co‑current</option>
-                </select>
-              </td>
-              <td>
-                <div class="cell-flex">
-                  <input type="text" id="lmtdDisplay" readonly>
-                  <select id="u_lmtd"></select>
-                </div>
-              </td>
-            </tr>
-          </table>
-
-          <table>
-            <tr>
-              <th>Item</th>
-              <th>Value</th>
-            </tr>
-            <tr>
-              <td>Overall heat transfer coeff. – clean, U (Note 3)</td>
-              <td>
-                <div class="cell-flex">
-                  <input type="number" id="uClean" step="any">
-                  <select id="u_uClean"></select>
-                </div>
-              </td>
-            </tr>
-            <tr>
-              <td>Fouling coefficient, Stream 1-side, Rd1 (Note 4)</td>
-              <td>
-                <div class="cell-flex">
-                  <input type="number" id="rd1" step="any">
-                  <select id="u_rd1"></select>
-                </div>
-              </td>
-            </tr>
-            <tr>
-              <td>Fouling coefficient, Stream 2-side, Rd2 (Note 4)</td>
-              <td>
-                <div class="cell-flex">
-                  <input type="number" id="rd2" step="any">
-                  <select id="u_rd2"></select>
-                </div>
-              </td>
-            </tr>
-            <tr>
-              <td>Overall heat transfer coeff. – design, Ud</td>
-              <td>
-                <div class="cell-flex">
-                  <input type="text" id="udDisplay" readonly>
-                  <select id="u_ud"></select>
-                </div>
-              </td>
-            </tr>
-            <tr>
-              <td>Effective heat transfer surface, A</td>
-              <td>
-                <div class="cell-flex">
-                  <input type="text" id="areaEffectiveDisplay" readonly>
-                  <select id="u_areaEff"></select>
-                </div>
-              </td>
-            </tr>
-            <tr>
-              <td>Design margin on surface</td>
-              <td>
-                <div class="cell-flex">
-                  <input type="number" id="margin" step="any">
-                  <span style="font-size:0.8rem;">%</span>
-                </div>
-              </td>
-            </tr>
-            <tr>
-              <td>Actual heat transfer surface, A'</td>
-              <td>
-                <div class="cell-flex">
-                  <input type="text" id="areaActualDisplay" readonly>
-                  <select id="u_areaAct"></select>
-                </div>
-              </td>
-            </tr>
-          </table>
-        </div>
-
-        <button id="calcBtn">Calculate</button>
+        <button id="convertBtn">Convert</button>
       </div>
-
-      <!-- NOTES & REFERENCE TABLES -->
-      <div class="app">
-        <h2>3. Notes</h2>
-
-        <p class="note">
-          <strong>Note 1.</strong> Flow rate in Stream 2 (hot side) is calculated from
-          heat transfer in Stream 1 (cold side), assuming
-          <code>Q<sub>cold</sub> = Q<sub>hot</sub></code>.
-        </p>
-
-        <p class="note">
-          <strong>Note 2.</strong> Logarithmic Mean Temperature Difference (LMTD):
-          <br>
-          <code>LMTD = (Δt1 − Δt2) / ln(Δt1 / Δt2)</code>
-          <br>
-          For counter‑current flow:
-          <code>Δt1 = t(hot,in) − t(cold,out)</code>,
-          <code>Δt2 = t(hot,out) − t(cold,in)</code>.
-          <br>
-          For co‑current flow:
-          <code>Δt1 = t(hot,in) − t(cold,in)</code>,
-          <code>Δt2 = t(hot,out) − t(cold,out)</code>.
-        </p>
-
-        <p class="note">
-          <strong>Note 3.</strong> Typical values of overall heat transfer coefficient
-          U (EngineeringToolbox, “Heat Exchangers – Heat Transfer Coefficients”).
-        </p>
-
-        <div class="scroll-x">
-          <table>
-            <tr>
-              <th>Type</th>
-              <th>Application</th>
-              <th class="center">U (W/m²·K)</th>
-              <th class="center">U (Btu/ft²·°F·h)</th>
-            </tr>
-            <tr>
-              <td rowspan="6">Tubular, heating or cooling</td>
-              <td>Gases at atmospheric pressure inside and outside tubes</td>
-              <td class="center">5 – 35</td>
-              <td class="center">1 – 6</td>
-            </tr>
-            <tr>
-              <td>Gases at high pressure inside and outside tubes</td>
-              <td class="center">150 – 500</td>
-              <td class="center">25 – 90</td>
-            </tr>
-            <tr>
-              <td>Liquid outside (inside) and gas at atmospheric pressure inside (outside)</td>
-              <td class="center">15 – 70</td>
-              <td class="center">3 – 15</td>
-            </tr>
-            <tr>
-              <td>Gas at high pressure inside and liquid outside tubes</td>
-              <td class="center">200 – 400</td>
-              <td class="center">35 – 70</td>
-            </tr>
-            <tr>
-              <td>Liquids inside and outside tubes</td>
-              <td class="center">150 – 1200</td>
-              <td class="center">25 – 200</td>
-            </tr>
-            <tr>
-              <td>Steam outside and liquid inside tubes</td>
-              <td class="center">300 – 1200</td>
-              <td class="center">50 – 200</td>
-            </tr>
-
-            <tr>
-              <td rowspan="2">Tubular, condensation</td>
-              <td>Steam outside and cooling water inside tubes</td>
-              <td class="center">1500 – 4000</td>
-              <td class="center">250 – 700</td>
-            </tr>
-            <tr>
-              <td>Organic vapors or ammonia outside and cooling water inside tubes</td>
-              <td class="center">300 – 1200</td>
-              <td class="center">50 – 200</td>
-            </tr>
-
-            <tr>
-              <td rowspan="3">Tubular, evaporation</td>
-              <td>Steam outside and high‑viscous liquid inside tubes, natural circulation</td>
-              <td class="center">300 – 900</td>
-              <td class="center">50 – 150</td>
-            </tr>
-            <tr>
-              <td>Steam outside and low‑viscous liquid inside tubes, natural circulation</td>
-              <td class="center">600 – 1700</td>
-              <td class="center">100 – 300</td>
-            </tr>
-            <tr>
-              <td>Steam outside and liquid inside tubes, forced circulation</td>
-              <td class="center">900 – 3000</td>
-              <td class="center">150 – 500</td>
-            </tr>
-
-            <tr>
-              <td rowspan="9">Air‑cooled heat exchangers</td>
-              <td>Cooling of water</td>
-              <td class="center">600 – 750</td>
-              <td class="center">100 – 130</td>
-            </tr>
-            <tr>
-              <td>Cooling of liquid light hydrocarbons</td>
-              <td class="center">400 – 550</td>
-              <td class="center">70 – 95</td>
-            </tr>
-            <tr>
-              <td>Cooling of tar</td>
-              <td class="center">30 – 60</td>
-              <td class="center">5 – 10</td>
-            </tr>
-            <tr>
-              <td>Cooling of air or flue gas</td>
-              <td class="center">60 – 180</td>
-              <td class="center">10 – 30</td>
-            </tr>
-            <tr>
-              <td>Cooling of hydrocarbon gas</td>
-              <td class="center">200 – 450</td>
-              <td class="center">35 – 80</td>
-            </tr>
-            <tr>
-              <td>Condensation of low‑pressure steam</td>
-              <td class="center">750 – 850</td>
-              <td class="center">125 – 150</td>
-            </tr>
-            <tr>
-              <td>Condensation of organic vapors</td>
-              <td class="center">350 – 500</td>
-              <td class="center">65 – 90</td>
-            </tr>
-            <tr>
-              <td>Plate heat exchanger, liquid to liquid</td>
-              <td class="center">1000 – 4000</td>
-              <td class="center">150 – 700</td>
-            </tr>
-            <tr>
-              <td>Spiral heat exchanger, liquid to liquid / condensing vapor to liquid</td>
-              <td class="center">700 – 3500</td>
-              <td class="center">125 – 700</td>
-            </tr>
-          </table>
-        </div>
-
-        <p class="note">
-          <strong>Note 4.</strong> Typical values of fouling factor (EngineeringToolbox,
-          “Fouling and Reduced Heat Transfer”).
-        </p>
-
-        <div class="scroll-x">
-          <table>
-            <tr>
-              <th>Fluid</th>
-              <th class="center">Fouling factor (m²·K/W)</th>
-              <th class="center">Fouling factor (ft²·°F·h/Btu)</th>
-            </tr>
-            <tr>
-              <td>Alcohol vapors</td>
-              <td class="center">0.000090</td>
-              <td class="center">0.000511</td>
-            </tr>
-            <tr>
-              <td>Boiler feed water, treated above 325 K</td>
-              <td class="center">0.000200</td>
-              <td class="center">0.001136</td>
-            </tr>
-            <tr>
-              <td>Fuel oil</td>
-              <td class="center">0.000900</td>
-              <td class="center">0.005110</td>
-            </tr>
-            <tr>
-              <td>Industrial air</td>
-              <td class="center">0.000400</td>
-              <td class="center">0.002271</td>
-            </tr>
-            <tr>
-              <td>Quenching oil</td>
-              <td class="center">0.000700</td>
-              <td class="center">0.003975</td>
-            </tr>
-            <tr>
-              <td>Refrigerating liquid</td>
-              <td class="center">0.000200</td>
-              <td class="center">0.001136</td>
-            </tr>
-            <tr>
-              <td>Seawater below 325 K</td>
-              <td class="center">0.000090</td>
-              <td class="center">0.000511</td>
-            </tr>
-            <tr>
-              <td>Seawater above 325 K</td>
-              <td class="center">0.000200</td>
-              <td class="center">0.001136</td>
-            </tr>
-            <tr>
-              <td>Steam</td>
-              <td class="center">0.000090</td>
-              <td class="center">0.000511</td>
-            </tr>
-          </table>
-        </div>
-      </div>
-
     </div>
   </main>
 
-  <!-- Shared unit conversions -->
+  <!-- Shared units & converters -->
   <script src="chemeng-units.js"></script>
 
-  <!-- Calculator logic -->
+  <!-- Page-specific UI logic -->
   <script>
-    function fillUnitSelect(selectEl, category, defaultKey) {
-      const units = getUnitsForCategory(category);
-      units.forEach(u => {
-        const opt = document.createElement("option");
-        opt.value = u.key;
-        opt.textContent = u.label;
-        selectEl.appendChild(opt);
-      });
-      if (defaultKey) {
-        const idx = units.findIndex(u => u.key === defaultKey);
-        if (idx >= 0) selectEl.selectedIndex = idx;
+    const NumOne = document.getElementById("number1");
+    const NumTwo = document.getElementById("number2");
+    const resultDiv = document.getElementById("result");
+    const errorDiv = document.getElementById("error");
+    const convertBtn = document.getElementById("convertBtn");
+
+    function convert() {
+      errorDiv.textContent = "";
+      const category = categorySelect.value;
+      const fromKey = fromSelect.value;
+      const toKey = toSelect.value;
+      const valStr = valueInput.value;
+
+      if (!valStr) {
+        errorDiv.textContent = "Please enter a value.";
+        return;
       }
+
+      const value = Number(valStr);
+      if (!Number.isFinite(value)) {
+        errorDiv.textContent = "Invalid numeric value.";
+        return;
+      }
+
+      let result;
+      try {
+        result = NumOne + NumTwo;
+      } catch (e) {
+        console.error(e);
+        errorDiv.textContent = "Conversion error: " + e.message;
+        return;
+      }
+      // resultDiv.textContent = result.toFixed(decimals);      
     }
-
-    // Populate all unit dropdowns
-    fillUnitSelect(document.getElementById("u_tColdIn"),  "Temperature", "°C");
-    fillUnitSelect(document.getElementById("u_tColdOut"), "Temperature", "°C");
-    fillUnitSelect(document.getElementById("u_tHotIn"),   "Temperature", "°C");
-    fillUnitSelect(document.getElementById("u_tHotOut"),  "Temperature", "°C");
-    fillUnitSelect(document.getElementById("u_cpCold"),   "Heat Capacity, Entropy", "J/(kg·K)");
-    fillUnitSelect(document.getElementById("u_cpHot"),    "Heat Capacity, Entropy", "J/(kg·K)");
-    fillUnitSelect(document.getElementById("u_mCold"),    "Mass Flow", "kg/h");
-    fillUnitSelect(document.getElementById("u_mHot"),     "Mass Flow", "kg/h");
-    fillUnitSelect(document.getElementById("u_qCold"),    "Power, Heat Flow, Duty", "kW");
-    fillUnitSelect(document.getElementById("u_qHot"),     "Power, Heat Flow, Duty", "kW");
-    fillUnitSelect(document.getElementById("u_lmtd"),     "Temperature Difference", "K");
-    fillUnitSelect(document.getElementById("u_uClean"),   "Heat Transfer", "W/(m2·K)");
-    fillUnitSelect(document.getElementById("u_ud"),       "Heat Transfer", "W/(m2·K)");
-    fillUnitSelect(document.getElementById("u_rd1"),      "Heat Resistance, Fouling", "m2·K/W");
-    fillUnitSelect(document.getElementById("u_rd2"),      "Heat Resistance, Fouling", "m2·K/W");
-    fillUnitSelect(document.getElementById("u_areaEff"),  "Area", "m2");
-    fillUnitSelect(document.getElementById("u_areaAct"),  "Area", "m2");
-
-    function calcHeatExchanger() {
-      function num(id) {
-        const v = parseFloat(document.getElementById(id).value);
-        return Number.isFinite(v) ? v : NaN;
-      }
-
-      function setOutput(id, value, category, baseUnitKey, unitKey, digits) {
-        const el = document.getElementById(id);
-        el.classList.remove("output-highlight");
-        if (!Number.isFinite(value)) {
-          el.value = "";
-          return;
-        }
-        const converted = convertUnits(category, value, baseUnitKey, unitKey);
-        el.value = converted.toFixed(digits);
-        // highlight updated field
-        void el.offsetWidth; // force reflow so animation restarts
-        el.classList.add("output-highlight");
-      }
-
-      const tCi   = num("tColdIn");
-      const tCi_u = document.getElementById("u_tColdIn").value;
-      const tCo   = num("tColdOut");
-      const tCo_u = document.getElementById("u_tColdOut").value;
-
-      const tHi   = num("tHotIn");
-      const tHi_u = document.getElementById("u_tHotIn").value;
-      const tHo   = num("tHotOut");
-      const tHo_u = document.getElementById("u_tHotOut").value;
-
-      const cpC   = num("cpCold");
-      const cpC_u = document.getElementById("u_cpCold").value;
-      const cpH   = num("cpHot");
-      const cpH_u = document.getElementById("u_cpHot").value;
-
-      const mC    = num("mCold");
-      const mC_u  = document.getElementById("u_mCold").value;
-      const mH_u  = document.getElementById("u_mHot").value;
-
-      const qC_u  = document.getElementById("u_qCold").value;
-      const qH_u  = document.getElementById("u_qHot").value;
-
-      const lmtd_u = document.getElementById("u_lmtd").value;
-
-      const Uclean    = num("uClean");
-      const Uclean_u  = document.getElementById("u_uClean").value;
-      const Ud_u      = document.getElementById("u_ud").value;
-
-      const Rd1   = num("rd1");
-      const Rd1_u = document.getElementById("u_rd1").value;
-      const Rd2   = num("rd2");
-      const Rd2_u = document.getElementById("u_rd2").value;
-
-      const margin = num("margin");
-      const Aeff_u = document.getElementById("u_areaEff").value;
-      const Aact_u = document.getElementById("u_areaAct").value;
-
-      const flowRegime = document.getElementById("flowRegime").value;
-
-      // Convert to internal units (°C, kg/s, J/kgK)
-      const Tc_in  = convertUnits("Temperature", tCi, tCi_u, "°C");
-      const Tc_out = convertUnits("Temperature", tCo, tCo_u, "°C");
-      const Th_in  = convertUnits("Temperature", tHi, tHi_u, "°C");
-      const Th_out = convertUnits("Temperature", tHo, tHo_u, "°C");
-
-      const CpC    = convertUnits("Heat Capacity, Entropy", cpC, cpC_u, "J/(kg·K)");
-      const CpH    = convertUnits("Heat Capacity, Entropy", cpH, cpH_u, "J/(kg·K)");
-
-      const MC_kg_s = convertUnits("Mass Flow", mC, mC_u, "kg/s");
-
-      // 1) Heat duty from cold side (W)
-      const dT_cold = Tc_out - Tc_in;
-      const Q_W = MC_kg_s * CpC * dT_cold;
-
-      setOutput("qColdDisplay", Q_W, "Power, Heat Flow, Duty", "W", qC_u, 2);
-      setOutput("qHotDisplay",  Q_W, "Power, Heat Flow, Duty", "W", qH_u, 2);
-
-      // 2) Hot side mass flow
-      const dT_hot = Th_in - Th_out;
-      let MH_kg_s = NaN;
-      if (CpH && Math.abs(dT_hot) > 0) {
-        MH_kg_s = Q_W / (CpH * dT_hot);
-      }
-      setOutput("mHotDisplay", MH_kg_s, "Mass Flow", "kg/s", mH_u, 2);
-
-      // 3) LMTD
-      let dt1, dt2;
-      if (flowRegime === "counter") {
-        dt1 = Th_in - Tc_out;
-        dt2 = Th_out - Tc_in;
-      } else {
-        dt1 = Th_in - Tc_in;
-        dt2 = Th_out - Tc_out;
-      }
-
-      let LMTD = NaN;
-      if (Number.isFinite(dt1) && Number.isFinite(dt2) && dt1 !== 0 && dt2 !== 0) {
-        if (Math.abs(dt1 - dt2) < 1e-9) {
-          LMTD = dt1;
-        } else {
-          LMTD = (dt1 - dt2) / Math.log(dt1 / dt2);
-        }
-      }
-      setOutput("lmtdDisplay", LMTD, "Temperature Difference", "K", lmtd_u, 2);
-
-      // 4) U design with fouling
-      const Uclean_base = convertUnits("Heat Transfer", Uclean, Uclean_u, "W/(m2·K)");
-      const Rd1_base    = convertUnits("Heat Resistance, Fouling", Rd1, Rd1_u, "m2·K/W");
-      const Rd2_base    = convertUnits("Heat Resistance, Fouling", Rd2, Rd2_u, "m2·K/W");
-
-      let Ud_base = NaN;
-      if (Uclean_base && Rd1_base >= 0 && Rd2_base >= 0) {
-        const Rtot = (1 / Uclean_base) + Rd1_base + Rd2_base;
-        Ud_base = 1 / Rtot;
-      }
-      setOutput("udDisplay", Ud_base, "Heat Transfer", "W/(m2·K)", Ud_u, 1);
-
-      // 5) Effective area
-      let A_eff = NaN;
-      if (Number.isFinite(Q_W) && Number.isFinite(Ud_base) && Number.isFinite(LMTD) &&
-          Ud_base > 0 && Math.abs(LMTD) > 0) {
-        A_eff = Q_W / (Ud_base * LMTD);
-      }
-      setOutput("areaEffectiveDisplay", A_eff, "Area", "m2", Aeff_u, 2);
-
-      // 6) Actual area with margin
-      let A_act = NaN;
-      if (Number.isFinite(A_eff) && Number.isFinite(margin)) {
-        A_act = A_eff * (1 + margin / 100);
-      }
-      setOutput("areaActualDisplay", A_act, "Area", "m2", Aact_u, 2);
-    }
-
-    document.getElementById("calcBtn").addEventListener("click", calcHeatExchanger);
+    
+    convertBtn.addEventListener("click", convert);
+    valueInput.addEventListener("keydown", e => {
+      if (e.key === "Enter") convert();
+    });
+    
+    // Initial state
+    categorySelect.value = "Length";
+    populateUnits();
   </script>
 </body>
 </html>
