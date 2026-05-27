@@ -14,91 +14,79 @@
       var c = document.getElementById("tool-nav-container");
       if (!c) return;
       fetch("tool-nav.html").then(r => r.text()).then(h => c.innerHTML = h)
-      .catch(err => console.error("Nav load failed:", err));
+        .catch(err => console.error("Nav load failed:", err));
     })();
   </script>
 
   <main>
     <div class="container">
+
       <div class="app">
-        <h2>Control Valve Sizing</h2>
+        <h2>Control Valve Sizing (Liquid and Vapor)</h2>
         <p>
-          Reference: Masoneilan Control Valve Sizing Handbook (typical equations). Enter
-          fluid properties and operating conditions; the tool computes Cv (liquid/vapor),
-          selects flow regime (for liquids), and basic valve opening estimate given a chosen
-          valve Cv. Units are selectable next to each field.
+          Based on the calculator shown in the provided reference sheet. Units are selectable beside each field.
+          The tool computes subcritical/choked (critical) status for liquids, Cv requirements, and indicative valve
+          opening given a selected Cv.
         </p>
 
-        <h3>1) Common inputs</h3>
+        <!-- Fluid Properties (top block) -->
+        <h3>1) Fluid Properties</h3>
         <div class="scroll-x">
           <table>
             <tr>
-              <th style="width:40%;">Quantity</th>
+              <th style="width:38%;">Quantity</th>
               <th>Value</th>
               <th style="width:22%;">Unit</th>
               <th>Notes</th>
             </tr>
             <tr>
-              <td>Mass flow rate, W</td>
+              <td>Flow rate – mass, W</td>
               <td><input type="number" id="W" step="any" placeholder=""></td>
-              <td>
-                <select id="u_W"></select>
-              </td>
-              <td>Used with ρ to compute volume flow for liquids</td>
+              <td><select id="u_W"></select></td>
+              <td>Used directly for gas; for liquids converts to V = W/ρ</td>
             </tr>
             <tr>
-              <td>Upstream pressure, P1</td>
+              <td>Pressure upstream, P1</td>
               <td><input type="number" id="P1" step="any" placeholder=""></td>
               <td><select id="u_P1"></select></td>
-              <td>Absolute or gauge is supported via Pressure (A/G)</td>
+              <td>Supports (A)/(G) – absolute/gauge</td>
             </tr>
             <tr>
-              <td>Downstream pressure, P2</td>
+              <td>Pressure downstream, P2</td>
               <td><input type="number" id="P2" step="any" placeholder=""></td>
               <td><select id="u_P2"></select></td>
-              <td>Same type as P1; ΔP = P1 − P2 (converted consistently)</td>
+              <td>ΔP = P1 − P2 handled in consistent basis</td>
             </tr>
             <tr>
-              <td>Pressure drop ratio factor, F<sub>l</sub> (or C<sub>f</sub>)</td>
+              <td>Pressure drop, ΔP</td>
+              <td><input type="text" id="dP_display" readonly></td>
+              <td><select id="u_dP_display"></select></td>
+              <td>Computed</td>
+            </tr>
+            <tr>
+              <td>Critical flow factor (liquid), F<sub>l</sub> (or C<sub>f</sub>)</td>
               <td><input type="number" id="Fl" step="any" placeholder=""></td>
-              <td><span class="muted">dimensionless</span></td>
-              <td>Typical default ≈ 0.9 when unknown (see Note 3)</td>
+              <td><span class="muted">—</span></td>
+              <td>Typical default ~0.9</td>
             </tr>
           </table>
         </div>
 
-        <h3>2) Liquid service</h3>
+        <!-- Liquid Flow block -->
+        <h3>2) Liquid Flow</h3>
         <div class="scroll-x">
           <table>
             <tr>
               <th>Quantity</th>
               <th>Value</th>
               <th>Unit</th>
-              <th>Result / Notes</th>
+              <th>Formula / Notes</th>
             </tr>
             <tr>
               <td>Density, ρ</td>
               <td><input type="number" id="rho" step="any" placeholder=""></td>
               <td><select id="u_rho"></select></td>
-              <td>Used to compute volumetric flow</td>
-            </tr>
-            <tr>
-              <td>Vapor pressure, P<sub>v</sub></td>
-              <td><input type="number" id="Pv" step="any" placeholder=""></td>
-              <td><select id="u_Pv"></select></td>
-              <td>Absolute pressure at flowing temperature</td>
-            </tr>
-            <tr>
-              <td>Critical pressure, P<sub>c</sub></td>
-              <td><input type="number" id="Pc" step="any" placeholder=""></td>
-              <td><select id="u_Pc"></select></td>
-              <td>Used for liquid critical pressure drop limit</td>
-            </tr>
-            <tr>
-              <td>Liquid flow type (computed)</td>
-              <td><input type="text" id="liqType" readonly></td>
-              <td><span class="muted">—</span></td>
-              <td>Subcritical if ΔP &lt; F<sub>l</sub>² ΔP<sub>s</sub></td>
+              <td>kg/m³ (or other)</td>
             </tr>
             <tr>
               <td>Volumetric flow, V</td>
@@ -107,104 +95,149 @@
               <td>V = W / ρ</td>
             </tr>
             <tr>
-              <td>ΔP (consistent A/G)</td>
-              <td><input type="text" id="dP_liq" readonly></td>
-              <td><select id="u_dP_liq"></select></td>
-              <td>ΔP = P1 − P2, converted to same base</td>
+              <td>Vapor pressure, P<sub>v</sub></td>
+              <td><input type="number" id="Pv" step="any" placeholder=""></td>
+              <td><select id="u_Pv"></select></td>
+              <td>Absolute at flowing T</td>
             </tr>
             <tr>
-              <td>ΔP<sub>s</sub> (subcritical threshold)</td>
+              <td>Critical pressure, P<sub>c</sub></td>
+              <td><input type="number" id="Pc" step="any" placeholder=""></td>
+              <td><select id="u_Pc"></select></td>
+              <td>Used in ΔP<sub>s</sub></td>
+            </tr>
+            <tr>
+              <td>ΔP<sub>s</sub> (critical threshold)</td>
               <td><input type="text" id="dPs_liq" readonly></td>
               <td><select id="u_dPs_liq"></select></td>
-              <td>ΔP<sub>s</sub> = P1 − (0.96 − 0.28(Pv/Pc)<sup>0.5</sup>)·P<sub>v</sub></td>
+              <td>ΔP<sub>s</sub> = P1 − (0.96 − 0.28·(P<sub>v</sub>/P<sub>c</sub>)<sup>0.5</sup>)·P<sub>v</sub></td>
+            </tr>
+            <tr>
+              <td>Liquid flow type</td>
+              <td><input type="text" id="liqType" readonly></td>
+              <td><span class="muted">—</span></td>
+              <td>Subcritical if ΔP &lt; F<sub>l</sub>² ΔP<sub>s</sub>; else Critical</td>
+            </tr>
+            <tr>
+              <td>Cv (liquid) – subcritical</td>
+              <td><input type="text" id="Cv_liq_sub" readonly></td>
+              <td><span class="muted">—</span></td>
+              <td>Cv = 1.6×10<sup>−3</sup> · W / √(ρ·ΔP)  (legacy metric form)</td>
+            </tr>
+            <tr>
+              <td>Cv (liquid) – critical</td>
+              <td><input type="text" id="Cv_liq_crit" readonly></td>
+              <td><span class="muted">—</span></td>
+              <td>Cv = 1.6×10<sup>−3</sup> · W / (F<sub>l</sub> √(ρ·ΔP<sub>s</sub>))</td>
             </tr>
             <tr>
               <td>Cv (liquid) – final</td>
-              <td><input type="text" id="Cv_liq" readonly></td>
+              <td><input type="text" id="Cv_liq_final" readonly></td>
               <td><span class="muted">—</span></td>
-              <td>
-                Subcritical: Cv = 1e3 · V / √ΔP. Critical: Cv = 1e3 · V / (F<sub>l</sub> √ΔP<sub>s</sub>) (units matched to legacy US customary; see below)
-              </td>
+              <td>Pick subcritical or critical as determined</td>
             </tr>
             <tr>
-              <td>Selected valve Cv</td>
+              <td>Selected valve (name/size)</td>
+              <td><input type="text" id="Valve_liq_note" placeholder="e.g., 1&quot; Globe"></td>
+              <td><span class="muted">—</span></td>
+              <td>Optional label</td>
+            </tr>
+            <tr>
+              <td>Selected Cv</td>
               <td><input type="number" id="Cv_selected_liq" step="any" placeholder=""></td>
               <td><span class="muted">—</span></td>
-              <td>From your lookup or spec sheet</td>
+              <td>From Cv lookup or spec</td>
             </tr>
             <tr>
-              <td>Valve opening (estimate)</td>
+              <td>Valve opening</td>
               <td><input type="text" id="opening_liq" readonly></td>
               <td><span class="muted">%</span></td>
-              <td>Opening ≈ Cv / Cv<sub>selected</sub> · 100%</td>
+              <td>Opening ≈ Cv(final)/Cv(selected) · 100%</td>
             </tr>
           </table>
         </div>
 
-        <h3>3) Vapor/gas service</h3>
+        <!-- Vapor/Gas Flow block -->
+        <h3>3) Vapor / Gas Flow</h3>
         <div class="scroll-x">
           <table>
             <tr>
               <th>Quantity</th>
               <th>Value</th>
               <th>Unit</th>
-              <th>Result / Notes</th>
+              <th>Formula / Notes</th>
             </tr>
             <tr>
-              <td>Molecular weight, Mw</td>
+              <td>Molecular weight, M<sub>w</sub></td>
               <td><input type="number" id="Mw" step="any" placeholder=""></td>
               <td><span class="muted">kg/kmol</span></td>
-              <td>Used for specific gravity vs air</td>
+              <td>Hydrocarbon gas ~16–44</td>
             </tr>
             <tr>
               <td>Flowing temperature, T</td>
               <td><input type="number" id="T" step="any" placeholder=""></td>
               <td><select id="u_T"></select></td>
-              <td>Absolute temperature preferred (K or R)</td>
+              <td>Absolute recommended (K or R)</td>
             </tr>
             <tr>
               <td>Specific gravity, G<sub>f</sub></td>
               <td><input type="text" id="Gf" readonly></td>
               <td><span class="muted">—</span></td>
-              <td>Computed: Gf = Mw / 28.96 (air basis)</td>
+              <td>G<sub>f</sub> = M<sub>w</sub>/28.96 · 288/T (legacy variant) or Mw/28.96 at 288 K</td>
             </tr>
             <tr>
-              <td>Compressibility, Z (optional)</td>
+              <td>Compressibility, Z</td>
               <td><input type="number" id="Z" step="any" placeholder=""></td>
               <td><span class="muted">—</span></td>
-              <td>If unknown, assume ~0.9–1.0</td>
+              <td>Default 0.9–1.0 if unknown</td>
             </tr>
             <tr>
-              <td>ΔP (consistent A/G)</td>
-              <td><input type="text" id="dP_gas" readonly></td>
-              <td><select id="u_dP_gas"></select></td>
-              <td>ΔP = P1 − P2, converted to same base</td>
+              <td>Flow rate – upstream basis, V1</td>
+              <td><input type="text" id="V1" readonly></td>
+              <td><span class="muted">std vol/day</span></td>
+              <td>V1 = W · R · T · Z / (M<sub>w</sub> · P1) with consistent units</td>
             </tr>
             <tr>
-              <td>Per ISA/legacy correlation, Y factor</td>
+              <td>Flow rate – downstream basis, V2</td>
+              <td><input type="text" id="V2" readonly></td>
+              <td><span class="muted">std vol/day</span></td>
+              <td>V2 = W · R · T · Z / (M<sub>w</sub> · P2)</td>
+            </tr>
+            <tr>
+              <td>Standardized flow, V<sub>std</sub></td>
+              <td><input type="text" id="Vstd" readonly></td>
+              <td><span class="muted">std vol/day</span></td>
+              <td>At 20 °C, P = 1.01325 bar A (indicative)</td>
+            </tr>
+            <tr>
+              <td>Y factor (pressure ratio)</td>
               <td><input type="text" id="Y" readonly></td>
               <td><span class="muted">—</span></td>
-              <td>Y = min(1.5, 1.63 / F<sub>l</sub> · (ΔP/P1)<sup>0.5</sup>)</td>
+              <td>Y = min(1.5, 1.63 / F<sub>l</sub> · √(ΔP/P1))</td>
             </tr>
             <tr>
-              <td>Cv (vapor/gas) – final</td>
+              <td>Cv (vapor) – legacy form</td>
               <td><input type="text" id="Cv_gas" readonly></td>
               <td><span class="muted">—</span></td>
-              <td>
-                Approx. legacy form: Cv ≈ 0.0545 · W · √(T · Z / Gf) / (P1 · Y) with consistent units
-              </td>
+              <td>Cv ≈ 0.0545 · W · √(T·Z/G<sub>f</sub>) / (P1 · Y), with W in lb/h, T in °R, P1 in psi</td>
             </tr>
             <tr>
-              <td>Selected valve Cv</td>
+              <td>Selected valve (name/size)</td>
+              <td><input type="text" id="Valve_gas_note" placeholder="e.g., 1.5&quot; Globe"></td>
+              <td><span class="muted">—</span></td>
+              <td>Optional label</td>
+            </tr>
+            <tr>
+              <td>Selected Cv</td>
               <td><input type="number" id="Cv_selected_gas" step="any" placeholder=""></td>
               <td><span class="muted">—</span></td>
-              <td>From your lookup or spec sheet</td>
+              <td>From Cv lookup or spec</td>
             </tr>
             <tr>
-              <td>Valve opening (estimate)</td>
+              <td>Valve opening</td>
               <td><input type="text" id="opening_gas" readonly></td>
               <td><span class="muted">%</span></td>
-              <td>Opening ≈ Cv / Cv<sub>selected</sub> · 100%</td>
+              <td>Opening ≈ Cv(final)/Cv(selected) · 100%</td>
             </tr>
           </table>
         </div>
@@ -216,6 +249,7 @@
         <div id="error" class="error"></div>
       </div>
 
+      <!-- Notes and Cv lookup -->
       <div class="app">
         <h2>Notes</h2>
         <ol class="note">
@@ -227,93 +261,83 @@
             The nozzle type is used where catastrophic failure would damage compressors or other critical equipment.
           </li>
           <li>
-            Coefficient Cv signifies the flow [US gal/min] of water at 60 °F through an open valve at 1 psi differential.
-            Coefficient Kv signifies the flow [m³/h] of water at 15 °C through an open valve at 1 bar differential.
-            <br>Relationship: Kv ≈ 0.856 · Cv
+            Coefficient Cv signifies the flow [US gal/min] of water at 60 °F through an open valve at 1 psi
+            differential. Coefficient Kv signifies the flow [m³/h] of water at 15 °C through an open valve at
+            1 bar differential. Kv ≈ 0.856 · Cv.
           </li>
         </ol>
-        <p class="muted">
-          This tool provides typical equations and approximations for preliminary sizing. Always check the manufacturer’s
-          sizing handbook and noise/cavitation limits for final selection.
-        </p>
+
+        <h3>Cv Lookup Table (typical values)</h3>
+        <div class="scroll-x">
+          <table>
+            <tr>
+              <th class="center">Cv</th>
+              <th class="center">Control Valve</th>
+            </tr>
+            <tr><td class="center">12</td><td class="center">1" Globe</td></tr>
+            <tr><td class="center">25</td><td class="center">1.5" Globe</td></tr>
+            <tr><td class="center">46</td><td class="center">2" Globe</td></tr>
+            <tr><td class="center">110</td><td class="center">3" Globe</td></tr>
+            <tr><td class="center">195</td><td class="center">4" Globe</td></tr>
+            <tr><td class="center">400</td><td class="center">6" Globe</td></tr>
+            <tr><td class="center">640</td><td class="center">8" Globe</td></tr>
+            <tr><td class="center">1,000</td><td class="center">10" Globe</td></tr>
+            <tr><td class="center">1,440</td><td class="center">10" B'fly</td></tr>
+            <tr><td class="center">2,070</td><td class="center">12" B'fly</td></tr>
+            <tr><td class="center">2,650</td><td class="center">14" B'fly</td></tr>
+            <tr><td class="center">3,500</td><td class="center">16" B'fly</td></tr>
+            <tr><td class="center">4,400</td><td class="center">18" B'fly</td></tr>
+            <tr><td class="center">5,400</td><td class="center">20" B'fly</td></tr>
+            <tr><td class="center">7,900</td><td class="center">24" B'fly</td></tr>
+            <tr><td class="center">12,400</td><td class="center">30" B'fly</td></tr>
+            <tr><td class="center">21,000</td><td class="center">36" B'fly</td></tr>
+            <tr><td class="center">25,500</td><td class="center">42" B'fly</td></tr>
+            <tr><td class="center">32,000</td><td class="center">48" B'fly</td></tr>
+            <tr><td class="center">41,000</td><td class="center">54" B'fly</td></tr>
+            <tr><td class="center">50,600</td><td class="center">60" B'fly</td></tr>
+            <tr><td class="center">73,000</td><td class="center">72" B'fly</td></tr>
+          </table>
+        </div>
       </div>
+
     </div>
   </main>
 
-  <!-- Shared unit conversions -->
   <script src="chemeng-units.js"></script>
-
-  <!-- Page logic -->
   <script>
-    // Convenience: get el
     const $ = id => document.getElementById(id);
 
-    // Populate unit dropdowns from shared UnitData
-    function fillUnits() {
-      // Pressures (support A/G)
-      ["u_P1","u_P2","u_Pv","u_Pc","u_dP_liq","u_dPs_liq","u_dP_gas"].forEach(id=>{
-        const sel = $(id);
-        getUnitsForCategory("Pressure").forEach(u=>{
-          const opt = document.createElement("option");
-          opt.value = u.key; opt.textContent = u.label;
-          sel.appendChild(opt);
-        });
-      });
-
-      // Mass flow
-      getUnitsForCategory("Mass Flow").forEach(u=>{
-        ["u_W"].forEach(id=>{
-          const opt = document.createElement("option");
-          opt.value = u.key; opt.textContent = u.label;
-          $(id).appendChild(opt);
-        });
-      });
-
-      // Density
-      getUnitsForCategory("Density").forEach(u=>{
+    function addOptions(selectId, category, defaultKey) {
+      const sel = $(selectId);
+      sel.innerHTML = "";
+      getUnitsForCategory(category).forEach(u => {
         const opt = document.createElement("option");
         opt.value = u.key; opt.textContent = u.label;
-        $("u_rho").appendChild(opt);
+        sel.appendChild(opt);
       });
+      if (defaultKey) sel.value = defaultKey;
+    }
 
-      // Liquid volumetric flow display
-      getUnitsForCategory("Volume Flow").forEach(u=>{
-        const opt1 = document.createElement("option");
-        opt1.value = u.key; opt1.textContent = u.label;
-        $("u_V_liq").appendChild(opt1);
-      });
+    function fillAllUnitLists() {
+      // Shared pressure and ΔP readouts
+      ["u_P1","u_P2","u_Pv","u_Pc","u_dP_display","u_dPs_liq"].forEach(id => addOptions(id,"Pressure","kPa (A)"));
 
-      // Temperature (use absolute recommended)
-      getUnitsForCategory("Temperature").forEach(u=>{
-        const opt = document.createElement("option");
-        opt.value = u.key; opt.textContent = u.label;
-        $("u_T").appendChild(opt);
-      });
+      // Mass flow, Density, Vol flow
+      addOptions("u_W","Mass Flow","kg/h");
+      addOptions("u_rho","Density","kg/m3");
+      addOptions("u_V_liq","Volume Flow","m3/h");
 
-      // Temperature difference for LMTD-like (not used here but for consistency)
-      getUnitsForCategory("Temperature Difference").forEach(u=>{
-        const ids = ["u_lmtd"]; // none here, placeholder if needed
-      });
-
-      // Set some reasonable defaults
-      $("u_P1").value = "kPa (A)";
-      $("u_P2").value = "kPa (A)";
-      $("u_Pv").value = "kPa (A)";
-      $("u_Pc").value = "kPa (A)";
-      $("u_dP_liq").value = "kPa (A)";
-      $("u_dPs_liq").value = "kPa (A)";
-      $("u_dP_gas").value = "kPa (A)";
-      $("u_W").value = "kg/h";
-      $("u_rho").value = "kg/m3";
-      $("u_V_liq").value = "m3/h";
-      $("u_T").value = "K";
+      // Temperature
+      addOptions("u_T","Temperature","K");
     }
 
     function clearAll() {
       [
-        "W","P1","P2","Fl","rho","Pv","Pc","V_liq","dP_liq","dPs_liq",
-        "Cv_liq","Cv_selected_liq","opening_liq","liqType",
-        "Mw","T","Gf","Z","dP_gas","Y","Cv_gas","Cv_selected_gas","opening_gas"
+        "W","P1","P2","Fl","rho","Pv","Pc","V_liq","dP_display","dPs_liq",
+        "liqType","Cv_liq_sub","Cv_liq_crit","Cv_liq_final",
+        "Valve_liq_note","Cv_selected_liq","opening_liq",
+        "Mw","T","Gf","Z","V1","V2","Vstd","Y","Cv_gas",
+        "Valve_gas_note","Cv_selected_gas","opening_gas"
       ].forEach(id => { const el = $(id); if (el) el.value = ""; });
       $("error").textContent = "";
     }
@@ -321,161 +345,163 @@
     function calc() {
       $("error").textContent = "";
 
-      // Read commons
-      const W_in   = parseFloat($("W").value);
-      const uW     = $("u_W").value;
+      // Basic inputs
+      const W_in = parseFloat($("W").value);
+      const uW = $("u_W").value;
+      const P1_in = parseFloat($("P1").value);
+      const P2_in = parseFloat($("P2").value);
+      const uP1 = $("u_P1").value;
+      const uP2 = $("u_P2").value;
+      const Fl = parseFloat($("Fl").value);
 
-      const P1_in  = parseFloat($("P1").value);
-      const uP1    = $("u_P1").value;
-      const P2_in  = parseFloat($("P2").value);
-      const uP2    = $("u_P2").value;
-
-      const Fl     = parseFloat($("Fl").value);
-
-      // Basic checks
       if (!Number.isFinite(P1_in) || !Number.isFinite(P2_in)) {
-        $("error").textContent = "Please enter P1 and P2.";
+        $("error").textContent = "Please input P1 and P2.";
         return;
       }
       if (!Number.isFinite(Fl) || Fl <= 0) {
-        $("error").textContent = "Please enter a positive F_l (pressure drop ratio factor).";
-        return;
-      }
-      if (!Number.isFinite(W_in)) {
-        $("error").textContent = "Please enter mass flow rate W.";
+        $("error").textContent = "Please input a positive F_l (or C_f).";
         return;
       }
 
-      // Convert to consistent base units
-      // Pressures to absolute kPa, but ΔP function handles (A/G) kinds correctly via convertUnits on "Pressure".
-      const P1_kPaA = convertUnits("Pressure", P1_in, uP1, "kPa (A)");
-      const P2_kPaA = convertUnits("Pressure", P2_in, uP2, "kPa (A)");
-      const dP_kPaA = P1_kPaA - P2_kPaA;
+      // Convert to absolute kPa basis for ΔP
+      const P1k = convertUnits("Pressure", P1_in, uP1, "kPa (A)");
+      const P2k = convertUnits("Pressure", P2_in, uP2, "kPa (A)");
+      const dPk = P1k - P2k;
 
-      // ----- Liquid block -----
+      // Show ΔP in chosen readout unit
+      const u_dP_out = $("u_dP_display").value;
+      $("dP_display").value = Number.isFinite(dPk) ? convertUnits("Pressure", dPk, "kPa (A)", u_dP_out).toFixed(3) : "";
+
+      // LIQUID BRANCH
       const rho_in = parseFloat($("rho").value);
-      const uRho   = $("u_rho").value;
-      const Pv_in  = parseFloat($("Pv").value);
-      const uPv    = $("u_Pv").value;
-      const Pc_in  = parseFloat($("Pc").value);
-      const uPc    = $("u_Pc").value;
+      const uRho = $("u_rho").value;
+      const Pv_in = parseFloat($("Pv").value);
+      const Pc_in = parseFloat($("Pc").value);
+      const uPv = $("u_Pv").value;
+      const uPc = $("u_Pc").value;
 
-      if (Number.isFinite(rho_in) && Number.isFinite(Pv_in) && Number.isFinite(Pc_in)) {
+      if (Number.isFinite(W_in) && Number.isFinite(rho_in) && rho_in>0) {
+        // Convert needed values
         const rho = convertUnits("Density", rho_in, uRho, "kg/m3");
-        const Pv  = convertUnits("Pressure", Pv_in,  uPv,  "kPa (A)");
-        const Pc  = convertUnits("Pressure", Pc_in,  uPc,  "kPa (A)");
-        const W   = convertUnits("Mass Flow", W_in,  uW,   "kg/h");
+        const Wkg_h = convertUnits("Mass Flow", W_in, uW, "kg/h");
 
-        // Volume flow (m3/h)
-        const V_m3h = (rho > 0) ? (W / rho) : NaN;
-
-        // ΔPs critical threshold (kPa)
-        // ΔPs = P1 − (0.96 − 0.28 * sqrt(Pv/Pc)) * Pv
-        let dPs = NaN;
-        if (Pc > 0) {
-          const term = (0.96 - 0.28 * Math.sqrt(Pv / Pc));
-          dPs = P1_kPaA - term * Pv;
-        }
-
-        // Determine type
-        let type = "";
-        if (Number.isFinite(dPs) && Number.isFinite(dP_kPaA)) {
-          const subcritLimit = Fl * Fl * dPs;
-          type = (dP_kPaA < subcritLimit) ? "Subcritical" : "Critical (choked)";
-        }
-
-        // Cv liquid — use legacy-friendly correlation:
-        // - First convert to US customary for the textbook formula Cv = Q(gpm) * sqrt(SG) / sqrt(ΔP(psi))
-        //   For water SG≈1. Here we map: V_m3h -> gpm, ΔP kPa -> psi.
-        //   Q(gpm) = V(m3/h) * 4.402867
-        //   ΔP(psi) = ΔP(kPa) / 6.894757293168
-        const gpm_per_m3h = 4.402867;
-        const psi_per_kPa = 1 / 6.894757293168;
-
-        const Q_gpm = V_m3h * gpm_per_m3h;
-        const dP_psi = dP_kPaA * psi_per_kPa;
-
-        // For general liquid with density rho (kg/m3), SG = rho / 999.016 (approx. water at ~15 °C)
-        const SG = (rho > 0) ? (rho / 999.016) : NaN;
-
-        let Cv_liq = NaN;
-        if (type.startsWith("Subcritical")) {
-          if (Q_gpm > 0 && dP_psi > 0 && SG > 0) {
-            Cv_liq = Q_gpm * Math.sqrt(SG) / Math.sqrt(dP_psi);
-          }
-        } else if (type) {
-          // Choked: replace ΔP with Fl^2 * ΔPs equivalent (per legacy guidance)
-          const dP_choked_psi = (Fl*Fl * dPs) * psi_per_kPa;
-          if (Q_gpm > 0 && dP_choked_psi > 0 && SG > 0) {
-            Cv_liq = Q_gpm * Math.sqrt(SG) / Math.sqrt(dP_choked_psi);
-          }
-        }
-
-        // Outputs (with unit pickers shown already)
-        $("liqType").value = type || "";
-        // Show V in chosen unit
-        const uV = $("u_V_liq").value || "m3/h";
-        $("V_liq").value = Number.isFinite(V_m3h) ? convertUnits("Volume Flow", V_m3h, "m3/h", uV).toFixed(3) : "";
-
-        const u_dP_l = $("u_dP_liq").value || "kPa (A)";
-        $("dP_liq").value = Number.isFinite(dP_kPaA) ? convertUnits("Pressure", dP_kPaA, "kPa (A)", u_dP_l).toFixed(3) : "";
-
-        const u_dPs_l = $("u_dPs_liq").value || "kPa (A)";
-        $("dPs_liq").value = Number.isFinite(dPs) ? convertUnits("Pressure", dPs, "kPa (A)", u_dPs_l).toFixed(3) : "";
-
-        $("Cv_liq").value = Number.isFinite(Cv_liq) ? Cv_liq.toFixed(2) : "";
-
-        const Cv_sel_l = parseFloat($("Cv_selected_liq").value);
-        $("opening_liq").value = (Number.isFinite(Cv_liq) && Number.isFinite(Cv_sel_l) && Cv_sel_l>0)
-          ? (100 * Cv_liq / Cv_sel_l).toFixed(1) : "";
+        // V = W/ρ (m3/h)
+        const V_m3h = Wkg_h / rho;
+        const uVsel = $("u_V_liq").value || "m3/h";
+        $("V_liq").value = Number.isFinite(V_m3h) ? convertUnits("Volume Flow", V_m3h, "m3/h", uVsel).toFixed(3) : "";
+      } else {
+        $("V_liq").value = "";
       }
 
-      // ----- Gas block -----
+      // Liquid critical threshold
+      let dPs = NaN, typeTxt = "";
+      if (Number.isFinite(Pv_in) && Number.isFinite(Pc_in)) {
+        const Pv = convertUnits("Pressure", Pv_in, uPv, "kPa (A)");
+        const Pc = convertUnits("Pressure", Pc_in, uPc, "kPa (A)");
+        if (Pc>0) {
+          dPs = P1k - (0.96 - 0.28*Math.sqrt(Pv/Pc)) * Pv;
+        }
+      }
+
+      const u_dPs_out = $("u_dPs_liq").value || "kPa (A)";
+      $("dPs_liq").value = Number.isFinite(dPs) ? convertUnits("Pressure", dPs, "kPa (A)", u_dPs_out).toFixed(3) : "";
+
+      // Decide liquid regime and compute Cv using metric legacy from your sheet:
+      // Cv_sub = 1.6e-3 * W / sqrt(ρ * ΔP)
+      // Cv_crit = 1.6e-3 * W / ( Fl * sqrt(ρ * ΔP_s) )
+      let Cv_sub = NaN, Cv_crit = NaN, Cv_final = NaN;
+      if (Number.isFinite(W_in) && Number.isFinite(rho_in) && rho_in>0 && dPk>0) {
+        const rho = convertUnits("Density", rho_in, uRho, "kg/m3");
+        const Wkg_h = convertUnits("Mass Flow", W_in, uW, "kg/h");
+        if (rho>0) {
+          Cv_sub = 1.6e-3 * Wkg_h / Math.sqrt(rho * dPk);
+          if (Number.isFinite(dPs) && dPs>0) {
+            Cv_crit = 1.6e-3 * Wkg_h / (Fl * Math.sqrt(rho * dPs));
+          }
+        }
+
+        if (Number.isFinite(dPs) && dPs>0 && dPk >= Fl*Fl*dPs) {
+          typeTxt = "Critical (choked)";
+          Cv_final = Cv_crit;
+        } else if (Number.isFinite(Cv_sub)) {
+          typeTxt = "Subcritical";
+          Cv_final = Cv_sub;
+        }
+      }
+
+      $("liqType").value = typeTxt || "";
+      $("Cv_liq_sub").value = Number.isFinite(Cv_sub) ? Cv_sub.toFixed(3) : "";
+      $("Cv_liq_crit").value = Number.isFinite(Cv_crit) ? Cv_crit.toFixed(3) : "";
+      $("Cv_liq_final").value = Number.isFinite(Cv_final) ? Cv_final.toFixed(3) : "";
+
+      const Cv_sel_l = parseFloat($("Cv_selected_liq").value);
+      $("opening_liq").value = (Number.isFinite(Cv_final) && Number.isFinite(Cv_sel_l) && Cv_sel_l>0)
+        ? (100*Cv_final/Cv_sel_l).toFixed(1) : "";
+
+      // VAPOR/GAS BRANCH
       const Mw = parseFloat($("Mw").value);
       const T_in = parseFloat($("T").value);
       const uT = $("u_T").value;
       const Z_in = parseFloat($("Z").value);
-      const Z = Number.isFinite(Z_in) && Z_in>0 ? Z_in : 1.0; // default if blank
+      const Z = Number.isFinite(Z_in) && Z_in>0 ? Z_in : 1.0;
 
-      // Common ΔP for gas
-      const u_dP_g = $("u_dP_gas").value || "kPa (A)";
-      $("dP_gas").value = Number.isFinite(dP_kPaA) ? convertUnits("Pressure", dP_kPaA, "kPa (A)", u_dP_g).toFixed(3) : "";
-
-      if (Number.isFinite(Mw) && Number.isFinite(T_in)) {
+      if (Number.isFinite(Mw) && Number.isFinite(T_in) && Number.isFinite(W_in)) {
+        // Temperature to K and R
         const T_K = convertUnits("Temperature", T_in, uT, "K");
-        const Gf = Mw / 28.96;
+        const T_R = convertUnits("Temperature", T_K, "K", "R");
+
+        // Specific gravity (legacy line in the sheet shows temperature-corrected form):
+        // Gf = Mw / 28.96 * 288 / T  (T in K)
+        const Gf = (Mw / 28.96) * (288 / T_K);
         $("Gf").value = Number.isFinite(Gf) ? Gf.toFixed(4) : "";
 
-        // Legacy Y-factor correlation
-        const Y = (Fl > 0 && dP_kPaA > 0 && P1_kPaA > 0) ? Math.min(1.5, 1.63 / Fl * Math.sqrt(dP_kPaA / P1_kPaA)) : NaN;
+        // Y = Min(1.5, 1.63 / Fl * (ΔP/P1)^0.5)
+        const Y = (Fl>0 && dPk>0 && P1k>0) ? Math.min(1.5, (1.63/Fl)*Math.sqrt(dPk/P1k)) : NaN;
         $("Y").value = Number.isFinite(Y) ? Y.toFixed(3) : "";
 
-        // Convert to legacy-friendly units:
-        // Use W in lbm/hr, T in °R, P1 in psi.
-        const W_lbh = convertUnits("Mass Flow", W_in, uW, "lb/h");
-        const T_R   = convertUnits("Temperature", T_K, "K", "R"); // absolute Rankine
-        const P1_psi = convertUnits("Pressure", P1_kPaA, "kPa (A)", "psi (A)");
-
-        let Cv_gas = NaN;
-        if (Number.isFinite(W_lbh) && Number.isFinite(T_R) && Number.isFinite(P1_psi) && Number.isFinite(Gf) && Number.isFinite(Y) && Z>0) {
-          // Common handbook approximation:
-          // Cv ≈ 0.0545 * W * sqrt(T*Z/Gf) / (P1 * Y)
-          Cv_gas = 0.0545 * W_lbh * Math.sqrt(T_R * Z / Gf) / (P1_psi * Y);
+        // For illustrative upstream/downstream standardized volumetric rates:
+        // Use ideal gas: V = W*R*T*Z / (Mw*P). We simply report proportional “std vol/day” figures.
+        // Work in SI: R_specific = 8.314462618 kJ/(kmol·K) → Pa·m³/(kmol·K)
+        // We’ll show relative values (not needed for Cv, but mirrors the sheet).
+        const W_kg_s = convertUnits("Mass Flow", W_in, uW, "kg/s");
+        const Mw_kg_per_kmol = Mw; // kg/kmol
+        const R = 8.314462618; // kJ/(kmol·K) ≈ kPa·m³/(kmol·K)
+        // Convert P to kPa abs already (P1k, P2k). Volumetric rate m³/s ≈ (W/Mw) * (R*T*Z)/P
+        function vol_m3_s(Pk) {
+          if (!(Number.isFinite(W_kg_s) && Mw_kg_per_kmol>0 && Pk>0)) return NaN;
+          return (W_kg_s / Mw_kg_per_kmol) * (R * T_K * Z) / Pk;
         }
-        $("Cv_gas").value = Number.isFinite(Cv_gas) ? Cv_gas.toFixed(2) : "";
+        const V1_m3_s = vol_m3_s(P1k);
+        const V2_m3_s = vol_m3_s(P2k);
+        function m3s_to_std_per_day(m3s) { return Number.isFinite(m3s) ? (m3s * 86400) : NaN; }
+        const V1_std_day = m3s_to_std_per_day(V1_m3_s);
+        const V2_std_day = m3s_to_std_per_day(V2_m3_s);
+        $("V1").value = Number.isFinite(V1_std_day) ? V1_std_day.toFixed(2) : "";
+        $("V2").value = Number.isFinite(V2_std_day) ? V2_std_day.toFixed(2) : "";
+        // Indicative “standardized” at 1.01325 bar: scale by P/Pref
+        const Pref = 101.325; // kPa
+        const Vstd_day = Number.isFinite(V1_std_day) ? V1_std_day * (P1k/Pref) : NaN;
+        $("Vstd").value = Number.isFinite(Vstd_day) ? Vstd_day.toFixed(2) : "";
+
+        // Cv gas (legacy): Cv ≈ 0.0545 * W(lb/h) * sqrt(T_R * Z / Gf) / (P1(psi) * Y)
+        const W_lbh = convertUnits("Mass Flow", W_in, uW, "lb/h");
+        const P1_psi = convertUnits("Pressure", P1k, "kPa (A)", "psi (A)");
+        let Cv_g = NaN;
+        if (Number.isFinite(W_lbh) && Number.isFinite(T_R) && Number.isFinite(P1_psi) && Number.isFinite(Gf) && Number.isFinite(Y) && Z>0) {
+          Cv_g = 0.0545 * W_lbh * Math.sqrt(T_R * Z / Gf) / (P1_psi * Y);
+        }
+        $("Cv_gas").value = Number.isFinite(Cv_g) ? Cv_g.toFixed(2) : "";
 
         const Cv_sel_g = parseFloat($("Cv_selected_gas").value);
-        $("opening_gas").value = (Number.isFinite(Cv_gas) && Number.isFinite(Cv_sel_g) && Cv_sel_g>0)
-          ? (100 * Cv_gas / Cv_sel_g).toFixed(1) : "";
+        $("opening_gas").value = (Number.isFinite(Cv_g) && Number.isFinite(Cv_sel_g) && Cv_sel_g>0)
+          ? (100*Cv_g/Cv_sel_g).toFixed(1) : "";
       }
     }
 
-    // Wire buttons
+    // Wire and init
     $("calcBtn").addEventListener("click", calc);
     $("clearBtn").addEventListener("click", clearAll);
-
-    // Initialize unit lists on load
-    fillUnits();
+    fillAllUnitLists();
   </script>
 </body>
 </html>
