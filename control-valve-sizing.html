@@ -443,50 +443,58 @@
           .forEach(id=>$(id).value="");
       }
 
-      // ---- Gas: handbook Cv, plus V1/V2/Vstd with correct standard basis
+       // ---- Gas: handbook Cv (imperial) + correct V1/V2/Vstd
       const Mw   = parseFloat($("Mw").value);
       const T_in = parseFloat($("T").value);
       const uT   = $("u_T").value;
       const Z_in = parseFloat($("Z").value);
-      const Z    = Number.isFinite(Z_in) && Z_in>0 ? Z_in : 1.0;
-
-      if (Number.isFinite(Mw) && Mw>0 && Number.isFinite(T_in) && Number.isFinite(W_in) && dPk>0 && P1k>0) {
+      const Z    = Number.isFinite(Z_in) && Z_in > 0 ? Z_in : 1.0;
+      
+      if (Number.isFinite(Mw) && Mw > 0 && Number.isFinite(T_in) && Number.isFinite(W_in) && dPk > 0 && P1k > 0) {
+        // Temperature to K then to Rankine
         const T_K = convertUnits("Temperature", T_in, uT, "K");
-        const T_R = convertUnits("Temperature", T_K, "K", "R");
-
-        // Gf and Y
-        const Gf = (Mw/28.96)*(288/T_K);
+        const T_R = convertUnits("Temperature", T_K, "K", "R"); // MUST be °R for the handbook formula
+      
+        // Specific gravity Gf (dimensionless), as shown in the sheet
+        const Gf = (Mw / 28.96) * (288 / T_K);
         $("Gf").value = Number.isFinite(Gf) ? Gf.toFixed(4) : "";
-        const Y = Math.min(1.5, (1.63/Fl)*Math.sqrt(dPk/P1k));
+      
+        // Y factor (dimensionless); ΔP/P1 using absolute kPa is fine
+        const Y = Math.min(1.5, (1.63 / Fl) * Math.sqrt(dPk / P1k));
         $("Y").value = Number.isFinite(Y) ? Y.toFixed(3) : "";
-
-        // Cv_gas (handbook)
+      
+        // Convert mass flow to lb/h EXACTLY
         const W_lbh = convertUnits("Mass Flow", W_in, uW, "lb/h");
-        const P1_psi= convertUnits("Pressure", P1k, "kPa (A)", "psi (A)");
+      
+        // Convert upstream pressure to psi ABSOLUTE EXACTLY
+        const P1_psiA = convertUnits("Pressure", P1k, "kPa (A)", "psi (A)");
+      
+        // Now apply the handbook gas Cv formula strictly in imperial
+        // Cv = 0.0545 * W(lb/h) * sqrt( T(°R) * Z / Gf ) / ( P1(psiA) * Y )
         let Cv_gas = NaN;
-        if (Number.isFinite(W_lbh) && Number.isFinite(T_R) && Number.isFinite(Gf) && Number.isFinite(P1_psi) && Y>0) {
-          Cv_gas = 0.0545 * W_lbh * Math.sqrt((T_R * Z) / Gf) / (P1_psi * Y);
+        if (Number.isFinite(W_lbh) && Number.isFinite(T_R) && Number.isFinite(Gf) && Number.isFinite(P1_psiA) && Y > 0) {
+          Cv_gas = 0.0545 * W_lbh * Math.sqrt((T_R * Z) / Gf) / (P1_psiA * Y);
         }
         $("Cv_gas").value = Number.isFinite(Cv_gas) ? Cv_gas.toFixed(2) : "";
-        updateOpening("Cv_gas","Cv_selected_gas","opening_gas");
-
-        // V1/V2 (actual) and Vstd (standard)
+        updateOpening("Cv_gas", "Cv_selected_gas", "opening_gas");
+      
+        // V1/V2 actual and Vstd standard (display only; SI is fine here)
         const Wkh = convertUnits("Mass Flow", W_in, uW, "kg/h");
         const n_kmol_h = Wkh / Mw; // kmol/h
         const R = 8.314462618;     // kPa·m³/(kmol·K)
-        const V1_m3h = n_kmol_h * (R*T_K/P1k) * Z;            // upstream actual
-        const V2_m3h = n_kmol_h * (R*T_K/Math.max(P2k,1e-9)) * Z; // downstream actual
+        const V1_m3h = n_kmol_h * (R * T_K / P1k) * Z;                // upstream actual
+        const V2_m3h = n_kmol_h * (R * T_K / Math.max(P2k, 1e-9)) * Z; // downstream actual
         const Tstd = 293.15, Pstd = 101.325;
-        const Vstd_m3h = n_kmol_h * (R*Tstd/Pstd);            // standard basis
-
-        const toDay = m3h => Number.isFinite(m3h) ? m3h*24 : NaN;
+        const Vstd_m3h = n_kmol_h * (R * Tstd / Pstd);                 // standard basis 20°C, 1.01325 bar
+      
+        const toDay = m3h => Number.isFinite(m3h) ? m3h * 24 : NaN;
         $("V1").value   = Number.isFinite(V1_m3h)   ? toDay(V1_m3h).toFixed(2)   : "";
         $("V2").value   = Number.isFinite(V2_m3h)   ? toDay(V2_m3h).toFixed(2)   : "";
         $("Vstd").value = Number.isFinite(Vstd_m3h) ? toDay(Vstd_m3h).toFixed(2) : "";
       } else {
-        ["Gf","Y","V1","V2","Vstd","Cv_gas","opening_gas"].forEach(id=>$(id).value="");
+        ["Gf","Y","V1","V2","Vstd","Cv_gas","opening_gas"].forEach(id => { $(id).value = ""; });
       }
-    }
+
 
     function updateOpening(reqId, selId, outId) {
       const req = parseFloat($(reqId).value);
